@@ -5,39 +5,50 @@ body{
   font-family: ui-sans-serif,system-ui,"Segoe UI",Roboto,Ubuntu,"Helvetica Neue",Arial;
   background:#f6f7fb;color:#0f172a;line-height:1.55;
 }
-
-/* ===== Contenido ===== */
-header, main, footer{max-width:1100px;margin:0 auto;padding:16px}
+header,main,footer{max-width:1100px;margin:0 auto;padding:16px}
 header h1{font-size:2rem;letter-spacing:.2px;margin-bottom:6px}
 .subtitulo{color:#64748b}
 
-/* ===== Grid de la malla ===== */
-.malla{
+/* ===== Grid genérico ===== */
+.malla,
+.grid-container{
   display:grid;
   grid-template-columns: repeat(auto-fill,minmax(240px,1fr));
   gap:12px;
 }
 
-/* ===== Tarjeta de materia ===== */
+/* ===== Variante 1: tarjetas .materia (app.js v “materia”) ===== */
 .materia{
-  position:relative;
-  border-radius:12px;
-  padding:12px 12px 10px 12px;
-  color:#fff;                 /* el texto va blanco por los fondos de color */
+  position:relative;border-radius:12px;padding:12px;color:#fff;
   box-shadow:0 6px 18px rgba(0,0,0,.08);
   transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
-  cursor:pointer;
-  user-select:none;
-  min-height:92px;
+  cursor:pointer;user-select:none;min-height:92px;
 }
 .materia:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.12)}
-.materia.aprobada{outline:3px solid rgba(34,197,94,.75)}   /* borde verde al aprobar */
-
-/* Estados (texto pequeño dentro de la tarjeta) */
+.materia.aprobada{outline:3px solid rgba(34,197,94,.75)}
 .materia .estado{font-size:.82rem;opacity:.95;margin-top:6px}
 
-/* ===== Colores por ÁREA ===== */
-/* (si tus áreas cambian, basta con agregar otra clase) */
+/* ===== Variante 2: tarjetas .card.area (app.js v “card”) ===== */
+.card{
+  background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px;
+  box-shadow:0 6px 18px rgba(0,0,0,.04);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.card:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.08)}
+.card.area{color:#0f172a;background:#fff}
+.card .badge{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid #e5e7eb;font-size:.8rem}
+
+/* Estados (versión .card) */
+.badge.ok{background:#10b9811a;border-color:#10b98140;color:#065f46}
+.badge.dis{background:#60a5fa1a;border-color:#60a5fa40;color:#1e3a8a}
+.badge.pen{background:#f59e0b1a;border-color:#f59e0b40;color:#7c2d12}
+.badge.cur{background:#a78bfa1a;border-color:#a78bfa40;color:#4c1d95}
+.badge.grade{background:#e0f2fe;border-color:#93c5fd;color:#0c4a6e}
+.badge.note{background:#fce7f3;border-color:#f9a8d4;color:#831843}
+.btn-chip{border:1px solid #e5e7eb;background:#fff;color:#0f172a;padding:.35rem .55rem;border-radius:999px;cursor:pointer;font-size:.8rem}
+.btn-chip[disabled]{opacity:.5;cursor:not-allowed}
+
+/* ===== Colores por ÁREA (para ambas variantes) ===== */
 .A  { background:#7c3aed; }  /* Administración */
 .C  { background:#0ea5e9; }  /* Contabilidad */
 .MC { background:#16a34a; }  /* Métodos Cuantitativos */
@@ -46,8 +57,17 @@ header h1{font-size:2rem;letter-spacing:.2px;margin-bottom:6px}
 .S  { background:#db2777; }  /* Sociales */
 .J  { background:#f59e0b; }  /* Jurídica */
 
-/* ===== Secciones (agrupaciones por año/sem) ===== */
+/* Borde lateral de color para .card.area.* */
+.area.A{border-left:6px solid #7c3aed}
+.area.C{border-left:6px solid #0ea5e9}
+.area.MC{border-left:6px solid #16a34a}
+.area.E{border-left:6px solid #f97316}
+.area.I{border-left:6px solid #14b8a6}
+.area.S{border-left:6px solid #db2777}
+.area.J{border-left:6px solid #f59e0b}
+
+/* Títulos de grupo (año/sem) */
 section h3{font-size:1.15rem;margin:18px 0 10px;color:#111827}
 
-/* ===== Pie ===== */
+/* Footer */
 footer{color:#64748b;font-size:.9rem;text-align:center}
