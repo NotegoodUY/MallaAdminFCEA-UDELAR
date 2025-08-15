@@ -2,76 +2,22 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Notegood · Malla Interactiva – Administración (FCEA)</title>
-  <meta name="description" content="Malla interactiva para Administración (FCEA): marca materias, desbloquea correlativas, agrega notas y guarda tu progreso. by Notegood.uy">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Malla Curricular · Administración (Notegood)</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="landing">
-  <header class="ng-header" role="banner" aria-label="Encabezado Notegood">
-    <div class="header-top container">
-      <a href="index.html" class="logo">Notegood.uy ✨</a>
-      <div class="controls">
-        <button id="themeToggle" class="btn ghost" title="Modo oscuro">🌙</button>
-      </div>
-    </div>
+<body>
+  <header>
+    <h1>📚 Malla Curricular — Administración</h1>
+    <p class="subtitulo">Plan interactivo para seguir tu avance</p>
   </header>
 
-  <main class="hero" role="main">
-    <section class="hero-inner container">
-      <h1 class="hero-title">
-        Tu <span class="brand">Malla Interactiva</span> de Administración
-      </h1>
-      <p class="hero-sub">
-        Para ver claro tu camino, paso a paso, sin perderte en el intento.<br/>
-        <strong>Organiza tu carrera, marca tu avance y siéntete acompañada</strong> en el proceso. Todo en una sola malla.
-      </p>
-
-      <div class="hero-cta">
-        <a class="btn-pri" href="malla.html" aria-label="Ir a mi malla">🚀 Ver mi malla →</a>
-      </div>
-
-      <ul class="hero-list" aria-label="Beneficios">
-        <li>✅ Guarda tu avance (localStorage en tu navegador)</li>
-        <li>🔓 Correlativas que se desbloquean automáticamente</li>
-        <li>📝 Notas y calificaciones por materia</li>
-        <li>🎉 Confeti cuando completas la carrera (sí, literal)</li>
-      </ul>
-    </section>
-
-    <section class="feature-cards container" aria-label="Características">
-      <article class="card">
-        <h3>🌱 Empieza sin enredos</h3>
-        <p>Marca tus materias y desbloquea lo que sigue. Sin fórmulas raras.</p>
-      </article>
-      <article class="card">
-        <h3>✍️ Recuerda lo importante</h3>
-        <p>Guarda tus notas y calificaciones: quedan en tu dispositivo.</p>
-      </article>
-      <article class="card">
-        <h3>📊 Motivación visual</h3>
-        <p>Mira cuánto avanzaste con contadores visuales, estilo Notegood.</p>
-      </article>
-    </section>
-
-    <p class="closing">🫶 Que estudiar sea difícil, no significa hacerlo sola/o.</p>
+  <main>
+    <a href="malla.html" class="btn-principal">Ver Malla Interactiva</a>
   </main>
 
-  <footer class="ng-footer">
-    <p>Hecho con 💜 y muuucho café por Notegood.uy — <a href="https://www.instagram.com/notegood.uy/" target="_blank" rel="noopener">@notegood.uy</a></p>
+  <footer>
+    <p>Hecho con 💜 y mucho café por <strong>Notegood</strong></p>
   </footer>
-
-  <script>
-    // Tema claro/oscuro (igual a Medicina)
-    const THEME_KEY='ng-theme';
-    const b=document.body;
-    const saved=localStorage.getItem(THEME_KEY);
-    if(saved==='dark') b.classList.add('dark');
-    document.getElementById('themeToggle').addEventListener('click',()=>{
-      b.classList.toggle('dark');
-      localStorage.setItem(THEME_KEY, b.classList.contains('dark')?'dark':'light');
-    });
-  </script>
 </body>
 </html>
