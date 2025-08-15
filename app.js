@@ -1,17 +1,18 @@
 /* Notegood · Malla Administración (FCEA)
    - Lee materias desde materias_admin.json (raíz del repo)
-   - Tolera distintos formatos de JSON (array directo, {materias:[]}, {items:[]}, objeto índice)
+   - Tolera formatos: array directo, {materias:[]}, {items:[]}, objeto índice
    - Acepta previas como `previas` o `correlativas` (array o string "A10, C10")
-   - Colores por área: clases A, C, MC, E, I, S, J
-   - Guarda/recupera progreso (aprobadas y cursando) en localStorage
-   - Renderiza en #malla-container agrupando por Año/Semestre
+   - Colores por área: A, C, MC, E, I, S, J
+   - Guarda progreso (aprobadas/cursando) en localStorage
+   - Render en #malla-container (agrupado por Año/Semestre)
+   - Actualiza contadores: #countAprobadas, #countTotales, #countCreditos (si existen)
 */
 
 (function () {
   "use strict";
 
   // ========= Config =========
-  const DATA_URL = "materias_admin.json";       // <-- nombre/ruta del JSON en la raíz
+  const DATA_URL = "materias_admin.json";
   const LS_STATE = "malla-admin-state-v1";
   const LS_WELCOME = "malla-admin-welcome";
 
@@ -23,7 +24,7 @@
     byCodigo: new Map(),
   };
 
-  // ========= Utils DOM =========
+  // ========= DOM helpers =========
   const $ = (sel) => document.querySelector(sel);
   const container = $("#malla-container");
 
@@ -55,28 +56,16 @@
   }
 
   // ========= Normalización de datos =========
-  // Acepta claves alternativas y formatea previas/correlativas
   function normalizeOne(r) {
-    // código y nombre
-    const codigo = String(
-      r.codigo ?? r.cod ?? r.code ?? r.id ?? r.ID ?? ""
-    );
-
-    const nombre = String(
-      r.nombre ?? r.name ?? r.titulo ?? r.título ?? r.Title ?? ""
-    );
-
-    // créditos
+    const codigo = String(r.codigo ?? r.cod ?? r.code ?? r.id ?? r.ID ?? "");
+    const nombre = String(r.nombre ?? r.name ?? r.titulo ?? r.título ?? r.Title ?? "");
     const c = r.creditos ?? r.créditos ?? r.credit ?? r.credits ?? 0;
     const creditos = Number.parseInt(String(c), 10) || 0;
-
-    // área / año / semestre / tipo
     const area = String(r.area ?? r.área ?? "").toUpperCase();
     const anio = Number.parseInt(r.anio ?? r.año ?? r.year ?? 0, 10) || 0;
     const semestre = Number.parseInt(r.semestre ?? r.sem ?? r.semester ?? 0, 10) || 0;
     const tipo = String(r.tipo ?? r.type ?? "").toUpperCase();
 
-    // previas / correlativas (array o string)
     let prev = r.previas ?? r.correlativas ?? [];
     if (typeof prev === "string") {
       prev = prev.split(",").map((s) => s.trim()).filter(Boolean);
@@ -98,7 +87,7 @@
     return [];
   }
 
-  // ========= Lógica de previas/estados =========
+  // ========= Lógica de estados =========
   function canTake(m) {
     if (!m) return true;
     let prev = m.previas ?? [];
@@ -116,7 +105,7 @@
     return canTake(m) ? "disponible" : "bloqueada";
   }
 
-  // ========= Render =========
+  // ========= Render & contadores =========
   function labelEstado(est) {
     if (est === "aprobada")  return "Estado: aprobada";
     if (est === "cursando")  return "Estado: cursando";
@@ -127,6 +116,22 @@
   function tooltipMateria(m, est) {
     const prevs = m.previas?.length ? ` · Previas: ${m.previas.join(", ")}` : "";
     return `${m.nombre} (${m.codigo}) · ${m.creditos || 0} créditos · Área: ${m.area || "—"} · ${labelEstado(est)}${prevs}`;
+  }
+
+  function updateCounters() {
+    const spanA = $("#countAprobadas");
+    const spanT = $("#countTotales");
+    const spanC = $("#countCreditos");
+
+    const totMaterias = state.data.materias.length;
+    const aprobadas = state.data.materias.filter(m => state.aprobadas.has(m.codigo)).length;
+    const credOk = state.data.materias
+      .filter(m => state.aprobadas.has(m.codigo))
+      .reduce((s, m) => s + (+m.creditos || 0), 0);
+
+    if (spanA) spanA.textContent = String(aprobadas);
+    if (spanT) spanT.textContent = String(totMaterias);
+    if (spanC) spanC.textContent = String(credOk);
   }
 
   function render() {
@@ -144,6 +149,7 @@
     if (!materias.length) {
       container.innerHTML =
         '<div style="padding:1rem;background:var(--card);border:1px dashed var(--line);border-radius:12px;color:var(--muted)">No hay materias para mostrar. Revisa <b>materias_admin.json</b>.</div>';
+      updateCounters();
       return;
     }
 
@@ -161,13 +167,12 @@
       section.appendChild(h);
 
       const grid = document.createElement("div");
-      grid.className = "malla"; // usa el grid del styles.css
+      grid.className = "malla";
 
       arr.forEach((m) => {
         const est = estadoDe(m.codigo);
         const card = document.createElement("div");
 
-        // color por área + estado
         card.className = `materia ${m.area || ""} ${
           est === "aprobada" ? "aprobada" : est === "cursando" ? "cursando" : est === "bloqueada" ? "bloqueada" : ""
         }`;
@@ -186,6 +191,7 @@
           <div class="m-estado">${labelEstado(est)}</div>
         `;
 
+        // Click: aprobar / desaprobar
         card.addEventListener("click", () => {
           const e = estadoDe(m.codigo);
           if (e === "bloqueada") {
@@ -205,6 +211,7 @@
           confettiIf100();
         });
 
+        // Secundario (contextmenu): cursando
         card.addEventListener("contextmenu", (ev) => {
           ev.preventDefault();
           const e = estadoDe(m.codigo);
@@ -212,7 +219,7 @@
             toast("Aún no puedes marcarla como cursando.");
             return;
           }
-          if (state.aprobadas.has(m.codigo)) return; // si ya está aprobada, no cursando
+          if (state.aprobadas.has(m.codigo)) return; // no cursando si está aprobada
           if (state.cursando.has(m.codigo)) state.cursando.delete(m.codigo);
           else state.cursando.add(m.codigo);
           save();
@@ -225,9 +232,11 @@
       section.appendChild(grid);
       container.appendChild(section);
     });
+
+    updateCounters();
   }
 
-  // ========= Confeti (cuando se aprueban todos los créditos) =========
+  // ========= Confeti al completar =========
   function confettiIf100() {
     const tot = state.data.materias.reduce((s, x) => s + (+x.creditos || 0), 0);
     const ok = state.data.materias
@@ -263,13 +272,12 @@
 
   // ========= Boot =========
   async function boot() {
-    load(); // carga progreso local
+    load();
     try {
       const res = await fetch(DATA_URL, { cache: "no-store" });
       if (!res.ok) throw new Error(`No se pudo cargar ${DATA_URL}`);
       const raw = await res.json();
 
-      // Soportar distintos “roots”
       const root = normalizeRoot(raw);
       const materias = root.map(normalizeOne).filter(m => m.codigo && m.nombre);
 
