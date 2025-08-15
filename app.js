@@ -1,18 +1,23 @@
-/* Notegood · Malla Administración (FCEA) – v1
-   - Estética y tono como Medicina
+/* Notegood · Malla Administración (FCEA) – v2
+   - Colores por área (map en JS)
+   - Correlativas visibles (chips)
    - LocalStorage (sin login)
-   - Previas, notas, calificaciones, cursando
-   - Filtros por año, semestre, área, tipo, estado, búsqueda
 */
 
 (function () {
   "use strict";
 
   // ---------- Config ----------
-  const DATA_URL = "materias_admin.json"; // en la raíz del repo
-  const STATE_KEY = "malla-admin-notegood-v1";
-  const NOTES_KEY = "malla-admin-notes-v1";
-  const GRADES_KEY = "malla-admin-grades-v1";
+  const DATA_URL  = "materias_admin.json"; // en la raíz
+  const STATE_KEY = "malla-admin-notegood-v2";
+  const NOTES_KEY = "malla-admin-notes-v2";
+  const GRADES_KEY= "malla-admin-grades-v2";
+
+  // Mapa de color por área (coincide con CSS)
+  const AREA_CLASS = {
+    "A":"area-A", "C":"area-C", "MC":"area-MC", "E":"area-E",
+    "I":"area-I", "S":"area-S", "J":"area-J"
+  };
 
   // ---------- Estado ----------
   const state = {
@@ -26,9 +31,10 @@
   loadState();
 
   // ---------- Utils ----------
-  const $ = (sel) => document.querySelector(sel);
+  const $  = (sel) => document.querySelector(sel);
   const $$ = (sel) => Array.from(document.querySelectorAll(sel));
   const areaName = (id) => state.data.areas.find(a=>a.id===id)?.nombre || id || "";
+  const areaCls  = (id) => AREA_CLASS[id] || "";
 
   function load(k, fallback){ try{ return JSON.parse(localStorage.getItem(k) || JSON.stringify(fallback)); } catch { return fallback; } }
   function save(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
@@ -57,8 +63,9 @@
 
   function getEstado(cod) {
     if (state.aprobadas.has(cod)) return "aprobada";
-    if (state.cursando.has(cod)) return "cursando";
-    return canTake(state.data.materias.find(x=>x.codigo===cod)) ? "disponible" : "bloqueada";
+    if (state.cursando.has(cod))  return "cursando";
+    const m = state.data.materias.find(x=>x.codigo===cod);
+    return canTake(m) ? "disponible" : "bloqueada";
   }
 
   // ---------- Render principal ----------
@@ -82,7 +89,7 @@
   }
 
   function bindTopBar(){
-    $("#resetBtn").addEventListener("click", ()=>{
+    $("#resetBtn")?.addEventListener("click", ()=>{
       if (!confirm("¿Borrar todo tu progreso? Esta acción no se puede deshacer.")) return;
       state.aprobadas.clear(); state.cursando.clear();
       Object.keys(notas).forEach(k=>delete notas[k]);
@@ -91,7 +98,7 @@
     });
 
     // Filtros
-    $("#q").addEventListener("input", debounce(render, 150));
+    $("#q")?.addEventListener("input", debounce(render, 150));
     ["f-estado","f-anio","f-sem","f-area","f-tipo"].forEach(id=>{
       const el = $("#"+id);
       el && el.addEventListener("change", render);
@@ -99,7 +106,6 @@
   }
 
   function buildFilters(){
-    // Llenar combos de año/semestre/área una vez
     const años = [...new Set(state.data.materias.map(m=>m.anio))].sort((a,b)=>a-b);
     const sems = [...new Set(state.data.materias.map(m=>m.semestre))].sort((a,b)=>a-b);
 
@@ -139,10 +145,7 @@
     // Agrupar por año/semestre
     const key = (m)=> `${m.anio}º año · ${m.semestre}º semestre`;
     const groups = {};
-    for (const m of items) {
-      const k = key(m);
-      (groups[k] ||= []).push(m);
-    }
+    for (const m of items) (groups[key(m)] ||= []).push(m);
 
     Object.entries(groups).forEach(([title, arr])=>{
       const card = document.createElement("section");
@@ -161,14 +164,18 @@
         const can  = est==="disponible";
 
         const el = document.createElement("article");
-        el.className = "card";
+        el.className = `card area ${areaCls(m.area)}`;
         el.style.padding = "10px";
         el.innerHTML = `
           <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
             <div>
               <div style="font-weight:700">${m.nombre}</div>
-              <div class="muted" style="font-size:.9rem">${m.codigo} · ${m.creditos||0} créditos · ${areaName(m.area)}</div>
-              ${m.previas?.length ? `<div class="muted" style="margin-top:6px;font-size:.85rem">Previas: ${m.previas.join(", ")}</div>` : ""}
+              <div class="muted" style="font-size:.9rem">${m.codigo} · ${m.creditos||0} créditos</div>
+              <div class="tags" style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+                <span class="badge area ${areaCls(m.area)}">Área: ${areaName(m.area)}</span>
+                ${m.tipo ? `<span class="badge">${m.tipo==='OB'?'Obligatoria':'Opcional'}</span>` : ""}
+                ${prevChips(m)}
+              </div>
             </div>
             <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
               <button class="btn-chip btn-apr" data-cod="${m.codigo}" ${!can && !isOk ? "disabled" : ""}>${isOk?"✓ Aprobada":"Marcar aprobada"}</button>
@@ -176,10 +183,8 @@
               <button class="btn-chip btn-notes" data-cod="${m.codigo}" data-name="${m.nombre}">✏️</button>
             </div>
           </div>
-          <div class="tag-row" style="margin-top:6px">
-            ${badgeFor(est)}
-            ${gradeBadge(m.codigo)}
-            ${noteBadge(m.codigo)}
+          <div class="tag-row" style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+            ${badgeFor(est)} ${gradeBadge(m.codigo)} ${noteBadge(m.codigo)}
           </div>
         `;
         wrap.appendChild(el);
@@ -196,6 +201,15 @@
     $$(".btn-apr").forEach(b=> b.addEventListener("click", onToggleApr));
     $$(".btn-cur").forEach(b=> b.addEventListener("click", onToggleCur));
     $$(".btn-notes").forEach(b=> b.addEventListener("click", onOpenNotes));
+  }
+
+  function prevChips(m){
+    if (!m.previas || !m.previas.length) return "";
+    const names = m.previas.map(code => {
+      const mm = state.data.materias.find(x=>x.codigo===code);
+      return mm ? mm.nombre : code;
+    });
+    return `<span class="badge">Previas: ${names.join(" · ")}</span>`;
   }
 
   function badgeFor(est){
@@ -234,7 +248,6 @@
     if (state.cursando.has(cod)) {
       state.cursando.delete(cod);
     } else {
-      // Solo si está disponible o aprobada
       const est = getEstado(cod);
       if (est==="disponible" || est==="aprobada") state.cursando.add(cod);
     }
@@ -243,7 +256,7 @@
 
   // Notas & calificaciones
   const dlg = $("#noteModal"), noteTitle=$("#noteTitle"), noteText=$("#noteText"), gradeInput=$("#gradeInput");
-  $("#saveNoteBtn").addEventListener("click", (e)=>{
+  $("#saveNoteBtn")?.addEventListener("click", (e)=>{
     e.preventDefault();
     const cod = dlg.dataset.cod;
     notas[cod] = noteText.value || "";
@@ -319,7 +332,6 @@
     }
   }
   function confetti(){
-    // confeti muy simple, liviano
     const n=120;
     for(let i=0;i<n;i++){
       const s=document.createElement('div');
@@ -350,11 +362,10 @@
     setTimeout(()=> el.remove(), ms);
   }
 
-  // Bienvenida una sola vez
   function welcomeOnce(){
     const k='welcome-admin-seen';
     if (localStorage.getItem(k)) return;
-    toast("Bienvenida/o a tu Malla de Administración ✨ Marca tus materias y mira cómo se desbloquea lo que sigue.", 3200);
+    toast("Bienvenida/o a tu Malla de Administración ✨ Marca tus materias y mirá cómo se desbloquea lo que sigue.", 3200);
     localStorage.setItem(k, '1');
   }
 
