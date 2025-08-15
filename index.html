@@ -8,7 +8,7 @@
 </head>
 <body>
 
-  <!-- HERO: título + CTA + ilustración temática -->
+  <!-- HERO: título + CTA + ilustración -->
   <header class="ng-hero">
     <div class="container hero-grid">
       <div class="hero-left">
@@ -17,12 +17,16 @@
           Tu <span class="brand-accent">Malla Interactiva</span> de Administración
         </h1>
         <p class="hero-sub">
-          Planifica tu carrera, sigue tu avance y celebra cada logro. Todo en una sola herramienta.
+          Convierte el caos de la carrera en un plan claro: avanza, desbloquea y celebra cada logro.
         </p>
-        <a href="malla.html" class="btn-pri btn-pulse" aria-label="Comenzar ahora con mi malla">🚀 Comenzar ahora</a>
+
+        <div class="cta-block">
+          <a href="malla.html" class="btn-pri btn-pulse" aria-label="Organizar mi carrera ahora">🚀 Organizar mi carrera</a>
+          <span class="cta-sub">Sin registro. Gratis.</span>
+        </div>
       </div>
 
-      <!-- Ilustración ligera, accesible (decorativa) -->
+      <!-- Ilustración decorativa y ligera -->
       <div class="hero-illus" aria-hidden="true">
         <svg viewBox="0 0 340 240" width="100%" height="100%" role="img">
           <defs>
@@ -32,12 +36,12 @@
             </linearGradient>
           </defs>
           <rect x="14" y="26" rx="16" ry="16" width="240" height="160" fill="url(#g)" />
-          <rect x="30" y="52" width="120" height="12" rx="6" fill="#111827" opacity=".9"/>
-          <rect x="30" y="76" width="190" height="10" rx="5" fill="#111827" opacity=".6"/>
-          <rect x="30" y="94" width="170" height="10" rx="5" fill="#111827" opacity=".5"/>
-          <rect x="30" y="112" width="140" height="10" rx="5" fill="#111827" opacity=".45"/>
-          <rect x="30" y="140" width="90" height="14" rx="7" fill="#16a34a" opacity=".9"/>
-          <!-- gráfico mini -->
+          <rect x="30" y="52" width="140" height="12" rx="6" fill="#111827" opacity=".9"/>
+          <rect x="30" y="78" width="190" height="10" rx="5" fill="#111827" opacity=".6"/>
+          <rect x="30" y="96" width="170" height="10" rx="5" fill="#111827" opacity=".5"/>
+          <rect x="30" y="114" width="150" height="10" rx="5" fill="#111827" opacity=".45"/>
+          <rect x="30" y="142" width="100" height="14" rx="7" fill="#16a34a" opacity=".9"/>
+          <!-- mini barras -->
           <rect x="270" y="36" rx="12" ry="12" width="56" height="56" fill="#fff" opacity=".95"/>
           <path d="M282 80 L282 62 L288 62 L288 80 M296 80 L296 52 L302 52 L302 80 M310 80 L310 68 L316 68 L316 80" stroke="#2563eb" stroke-width="4" fill="none" stroke-linecap="round"/>
         </svg>
@@ -46,74 +50,38 @@
     <div class="hero-shadow"></div>
   </header>
 
-  <!-- BENEFICIOS: 3 columnas x 2 filas, alineado y con jerarquía -->
+  <!-- BENEFICIOS (3x2, reordenados por prioridad) -->
   <section class="container benefits-wrap">
     <div class="benefits-grid appear">
-      <!-- Fila 1 (más importantes) -->
+
+      <!-- 1 Guarda tu avance -->
       <article class="card benefit primary pop" style="--ring:#22c55e">
         <div class="badge-icon">
-          <!-- check -->
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
         </div>
         <h3>Guarda tu avance</h3>
         <p>Tu progreso se guarda en este dispositivo. No se pierde.</p>
       </article>
 
+      <!-- 2 Correlativas automáticas -->
       <article class="card benefit primary pop" style="--ring:#f59e0b">
         <div class="badge-icon">
-          <!-- unlocked -->
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.6-2"/></svg>
         </div>
         <h3>Correlativas automáticas</h3>
         <p>Se desbloquean según tus aprobadas. Sin cálculos raros.</p>
       </article>
 
-      <article class="card benefit primary pop" style="--ring:#0ea5e9">
+      <!-- 3 Notas y calificaciones -->
+      <article class="card benefit primary pop" style="--ring:#8b5cf6">
         <div class="badge-icon">
-          <!-- chart -->
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5"/><rect x="12" y="9" width="3" height="9"/><rect x="17" y="6" width="3" height="12"/></svg>
-        </div>
-        <h3>Motivación visual</h3>
-        <p>Indicadores claros y feedback positivo estilo Notegood.</p>
-      </article>
-
-      <!-- Fila 2 -->
-      <article class="card benefit secondary pop" style="--ring:#8b5cf6">
-        <div class="badge-icon">
-          <!-- note -->
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15l-6 6H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><path d="M15 15v6"/></svg>
         </div>
         <h3>Notas y calificaciones</h3>
         <p>Guarda recordatorios y registra tu nota por materia.</p>
       </article>
 
-      <article class="card benefit secondary pop" style="--ring:#111827">
+      <!-- 4 Motivación visual -->
+      <article class="card benefit secondary pop" style="--ring:#0ea5e9">
         <div class="badge-icon">
-          <!-- shield -->
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6z"/></svg>
-        </div>
-        <h3>Privado y simple</h3>
-        <p>Sin cuentas ni datos: todo queda en tu navegador.</p>
-      </article>
-
-      <article class="card benefit secondary pop" style="--ring:#ec4899">
-        <div class="badge-icon">
-          <!-- sparkles -->
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2 4 4 2-4 2-2 4-2-4-4-2 4-2z"/><path d="M20 14l1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/></svg>
-        </div>
-        <h3>Celebración final</h3>
-        <p>Confeti al completar la carrera. Cada logro cuenta.</p>
-      </article>
-    </div>
-  </section>
-
-  <!-- CTA sticky en mobile (mejora conversión) -->
-  <a href="malla.html" class="cta-sticky" aria-label="Abrir malla interactiva en móviles">🚀 Comenzar ahora</a>
-
-  <footer class="ng-footer">
-    <p>📌 Estudiar puede ser exigente, pero aquí no estás sola/o.</p>
-    <p>Hecho con 💜 y muuucho café por Notegood.uy — <a href="#" class="link">Instagram</a> · <a href="#" class="link">GitHub</a> · <a href="mailto:hola@notegood.uy" class="link">Contacto</a></p>
-  </footer>
-
-</body>
-</html>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5"/><rect x="12" y="9" width="3" height="9"/><rect x="17" y="6"
