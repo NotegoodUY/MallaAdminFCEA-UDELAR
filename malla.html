@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Malla Interactiva – Administración (Notegood)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="ng-header" role="banner">
+    <div class="header-top container">
+      <a href="index.html" class="logo">Notegood.uy ✨</a>
+      <div class="controls">
+        <button id="resetBtn" class="btn ghost" title="Borrar">🗑️ Borrar</button>
+        <button id="themeToggle" class="btn ghost" title="Modo oscuro">🌙</button>
+      </div>
+    </div>
+
+    <div class="header-bottom">
+      <div class="progress">
+        <div class="progress-track"></div>
+        <div id="progressBar" class="progress-bar" style="width:0"></div>
+      </div>
+
+      <div class="mini-legend" aria-label="Leyenda">
+        <span><span class="lg lg-ok"></span> Aprobada</span>
+        <span><span class="lg lg-dis"></span> Disponible</span>
+        <span><span class="lg lg-blq"></span> Bloqueada</span>
+        <span><span class="lg lg-cur"></span> Cursando</span>
+      </div>
+
+      <div class="progress-kpi">
+        <span id="progressPct">0%</span>
+        <span id="progressMsg" class="progress-msg">¡A empezar!</span>
+      </div>
+
+      <p class="share-cta">¿Te gustó? Compártela o sígueme en <a href="https://instagram.com/notegood.uy" target="_blank" rel="noopener">@notegood.uy</a> 💜</p>
+    </div>
+  </header>
+
+  <main class="container" style="padding:1rem">
+    <!-- Filtros -->
+    <section class="card" style="padding:14px; margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px">
+        <input id="q" type="search" placeholder="Buscar por código o nombre…" />
+        <select id="f-estado">
+          <option value="">Estado: Todos</option>
+          <option value="aprobada">Aprobada</option>
+          <option value="cursando">Cursando</option>
+          <option value="pendiente">Pendiente</option>
+        </select>
+        <select id="f-anio"><option value="">Año: Todos</option></select>
+        <select id="f-sem"><option value="">Semestre: Todos</option></select>
+        <select id="f-area"><option value="">Área: Todas</option></select>
+        <select id="f-tipo">
+          <option value="">Tipo: Todas</option>
+          <option value="OB">Obligatoria</option>
+          <option value="OP">Opcional</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Listado -->
+    <section id="list" class="grid-container" role="main" aria-live="polite"></section>
+
+    <p id="progressText" class="center muted" style="margin-top:10px">0 / 0 materias aprobadas · 0%</p>
+  </main>
+
+  <!-- Modal Notas -->
+  <dialog id="noteModal">
+    <form method="dialog" class="note-form">
+      <h3 id="noteTitle">Notas</h3>
+      <div class="field">
+        <label for="gradeInput">Calificación (0–12, opcional)</label>
+        <input id="gradeInput" type="number" min="0" max="12" step="1" inputmode="numeric" placeholder="0–12">
+      </div>
+      <div class="field">
+        <label for="noteText">Notas (texto libre)</label>
+        <textarea id="noteText" rows="6" placeholder="Resumen, recordatorios, etc."></textarea>
+      </div>
+      <div class="note-actions">
+        <button value="cancel" class="btn">Cancelar</button>
+        <button id="saveNoteBtn" class="btn-pri" value="default">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <footer class="ng-footer">
+    <p>Hecho con 💜 por Notegood.uy</p>
+  </footer>
+
+  <script src="app.js" defer></script>
+  <script>
+    // Tema claro/oscuro igual a Medicina
+    const THEME_KEY='ng-theme';
+    const b=document.body;
+    const saved=localStorage.getItem(THEME_KEY);
+    if(saved==='dark') b.classList.add('dark');
+    document.getElementById('themeToggle').addEventListener('click',()=>{
+      b.classList.toggle('dark');
+      localStorage.setItem(THEME_KEY, b.classList.contains('dark')?'dark':'light');
+    });
+  </script>
+</body>
+</html>
