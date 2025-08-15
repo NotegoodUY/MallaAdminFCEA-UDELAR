@@ -1,374 +1,241 @@
-/* Notegood · Malla Administración (FCEA) – v2
-   - Colores por área (map en JS)
-   - Correlativas visibles (chips)
-   - LocalStorage (sin login)
+/* Notegood · Malla Administración (FCEA)
+   - Carga datos desde materias_admin.json (raíz)
+   - Colores por área (clases: A, C, MC, E, I, S, J)
+   - Previas (correlativas) con bloqueo/desbloqueo
+   - Guarda avance en localStorage (aprobadas y cursando)
+   - Render en #malla-container (malla.html)
 */
 
 (function () {
   "use strict";
 
-  // ---------- Config ----------
-  const DATA_URL  = "materias_admin.json"; // en la raíz
-  const STATE_KEY = "malla-admin-notegood-v2";
-  const NOTES_KEY = "malla-admin-notes-v2";
-  const GRADES_KEY= "malla-admin-grades-v2";
+  // ========= Config =========
+  const DATA_URL = "materias_admin.json"; // <- la modificación clave
+  const LS_STATE = "malla-admin-state-v1";
 
-  // Mapa de color por área (coincide con CSS)
-  const AREA_CLASS = {
-    "A":"area-A", "C":"area-C", "MC":"area-MC", "E":"area-E",
-    "I":"area-I", "S":"area-S", "J":"area-J"
-  };
-
-  // ---------- Estado ----------
+  // ========= Estado =========
   const state = {
     aprobadas: new Set(),
     cursando: new Set(),
     data: { areas: [], materias: [] },
+    byCodigo: new Map()
   };
-  const notas  = load(NOTES_KEY, {});
-  const grades = load(GRADES_KEY, {});
 
-  loadState();
+  // ========= Utils DOM =========
+  const $ = (sel) => document.querySelector(sel);
+  const container = $("#malla-container");
 
-  // ---------- Utils ----------
-  const $  = (sel) => document.querySelector(sel);
-  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
-  const areaName = (id) => state.data.areas.find(a=>a.id===id)?.nombre || id || "";
-  const areaCls  = (id) => AREA_CLASS[id] || "";
+  function toast(msg, ms = 1700) {
+    const el = document.createElement("div");
+    el.textContent = msg;
+    el.style.cssText =
+      "position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#111827;color:#fff;padding:.6rem .8rem;border-radius:12px;border:1px solid rgba(255,255,255,.15);box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:9999;font-weight:600";
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), ms);
+  }
 
-  function load(k, fallback){ try{ return JSON.parse(localStorage.getItem(k) || JSON.stringify(fallback)); } catch { return fallback; } }
-  function save(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
-
-  function saveState() {
-    save(STATE_KEY, {
+  // ========= Persistencia =========
+  function save() {
+    const payload = {
       aprobadas: [...state.aprobadas],
-      cursando:  [...state.cursando],
-    });
-    save(NOTES_KEY, notas);
-    save(GRADES_KEY, grades);
+      cursando: [...state.cursando]
+    };
+    localStorage.setItem(LS_STATE, JSON.stringify(payload));
+  }
+  function load() {
+    try {
+      const raw = localStorage.getItem(LS_STATE);
+      if (!raw) return;
+      const obj = JSON.parse(raw);
+      state.aprobadas = new Set(obj.aprobadas || []);
+      state.cursando = new Set(obj.cursando || []);
+    } catch {
+      /* noop */
+    }
   }
 
-  function loadState() {
-    const raw = load(STATE_KEY, null);
-    if (!raw) return;
-    state.aprobadas = new Set(raw.aprobadas || []);
-    state.cursando  = new Set(raw.cursando  || []);
-  }
-
-  // Previas: todas deben estar aprobadas
+  // ========= Lógica de previas =========
   function canTake(m) {
     const prev = Array.isArray(m.previas) ? m.previas : [];
-    return prev.every(code => state.aprobadas.has(String(code).trim()));
+    return prev.every((cod) => state.aprobadas.has(String(cod).trim()));
   }
-
-  function getEstado(cod) {
-    if (state.aprobadas.has(cod)) return "aprobada";
-    if (state.cursando.has(cod))  return "cursando";
-    const m = state.data.materias.find(x=>x.codigo===cod);
+  function estadoDe(codigo) {
+    if (state.aprobadas.has(codigo)) return "aprobada";
+    if (state.cursando.has(codigo)) return "cursando";
+    const m = state.byCodigo.get(codigo);
     return canTake(m) ? "disponible" : "bloqueada";
   }
 
-  // ---------- Render principal ----------
-  async function boot() {
-    try{
-      const res = await fetch(DATA_URL, { cache: "no-store" });
-      if (!res.ok) throw new Error(`No se pudo cargar ${DATA_URL}`);
-      const data = await res.json();
-      state.data = data;
-
-      buildFilters();
-      bindTopBar();
-      render();
-      welcomeOnce();
-    }catch(e){
-      console.error(e);
-      $("#list").innerHTML = `<div style="padding:1rem;background:#fee2e2;border:1px solid #fecaca;border-radius:12px;max-width:960px;margin:1rem auto;font-weight:600;color:#7f1d1d">
-        Ups, no pude cargar la malla. Revisá que <code>${DATA_URL}</code> exista en la raíz.
-      </div>`;
-    }
-  }
-
-  function bindTopBar(){
-    $("#resetBtn")?.addEventListener("click", ()=>{
-      if (!confirm("¿Borrar todo tu progreso? Esta acción no se puede deshacer.")) return;
-      state.aprobadas.clear(); state.cursando.clear();
-      Object.keys(notas).forEach(k=>delete notas[k]);
-      Object.keys(grades).forEach(k=>delete grades[k]);
-      saveState(); render();
-    });
-
-    // Filtros
-    $("#q")?.addEventListener("input", debounce(render, 150));
-    ["f-estado","f-anio","f-sem","f-area","f-tipo"].forEach(id=>{
-      const el = $("#"+id);
-      el && el.addEventListener("change", render);
-    });
-  }
-
-  function buildFilters(){
-    const años = [...new Set(state.data.materias.map(m=>m.anio))].sort((a,b)=>a-b);
-    const sems = [...new Set(state.data.materias.map(m=>m.semestre))].sort((a,b)=>a-b);
-
-    const $anio=$("#f-anio"), $sem=$("#f-sem"), $area=$("#f-area");
-    if($anio) años.forEach(v=>$anio.insertAdjacentHTML("beforeend", `<option value="${v}">${v}°</option>`));
-    if($sem)  sems.forEach(v=>$sem.insertAdjacentHTML("beforeend", `<option value="${v}">${v}°</option>`));
-    if($area) state.data.areas.forEach(a=>$area.insertAdjacentHTML("beforeend", `<option value="${a.id}">${a.nombre}</option>`));
-  }
-
-  function matchesFilters(m){
-    const q   = ($("#q")?.value || "").trim().toLowerCase();
-    const fa  = $("#f-anio")?.value || "";
-    const fs  = $("#f-sem")?.value || "";
-    const far = $("#f-area")?.value || "";
-    const ft  = $("#f-tipo")?.value || "";
-    const fe  = $("#f-estado")?.value || "";
-
-    if (q && !(String(m.nombre).toLowerCase().includes(q) || String(m.codigo).toLowerCase().includes(q))) return false;
-    if (fa && String(m.anio) !== fa) return false;
-    if (fs && String(m.semestre) !== fs) return false;
-    if (far && String(m.area) !== far) return false;
-    if (ft && String(m.tipo) !== ft) return false;
-    if (fe && getEstado(m.codigo) !== fe) return false;
-    return true;
-  }
-
-  function render(){
-    const list = $("#list");
-    list.innerHTML = "";
-
-    // orden por año, semestre, código
-    const items = state.data.materias
-      .slice()
-      .sort((a,b)=> a.anio-b.anio || a.semestre-b.semestre || String(a.codigo).localeCompare(b.codigo))
-      .filter(matchesFilters);
+  // ========= Render =========
+  function render() {
+    if (!container) return;
+    container.innerHTML = "";
 
     // Agrupar por año/semestre
-    const key = (m)=> `${m.anio}º año · ${m.semestre}º semestre`;
+    const items = state.data.materias
+      .slice()
+      .sort(
+        (a, b) =>
+          (a.anio || 0) - (b.anio || 0) ||
+          (a.semestre || 0) - (b.semestre || 0) ||
+          String(a.codigo).localeCompare(b.codigo)
+      );
+
+    const key = (m) => `${m.anio || 0}º año · ${m.semestre || 0}º sem`;
     const groups = {};
     for (const m of items) (groups[key(m)] ||= []).push(m);
 
-    Object.entries(groups).forEach(([title, arr])=>{
-      const card = document.createElement("section");
-      card.className = "card";
-      card.style.padding = "12px";
-      card.style.marginBottom = "12px";
-      card.innerHTML = `<h3 style="margin:6px 6px 8px">${title}</h3>`;
-      const wrap = document.createElement("div");
-      wrap.className = "grid-container";
-      wrap.style.gap = "8px";
+    Object.entries(groups).forEach(([titulo, arr]) => {
+      const section = document.createElement("section");
+      section.style.marginBottom = "0.8rem";
 
-      arr.forEach(m=>{
-        const est = getEstado(m.codigo);
-        const isOk = est==="aprobada";
-        const isCur= est==="cursando";
-        const can  = est==="disponible";
+      const h = document.createElement("h3");
+      h.textContent = titulo;
+      h.style.margin = "0.5rem 0";
+      section.appendChild(h);
 
-        const el = document.createElement("article");
-        el.className = `card area ${areaCls(m.area)}`;
-        el.style.padding = "10px";
-        el.innerHTML = `
-          <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
-            <div>
-              <div style="font-weight:700">${m.nombre}</div>
-              <div class="muted" style="font-size:.9rem">${m.codigo} · ${m.creditos||0} créditos</div>
-              <div class="tags" style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
-                <span class="badge area ${areaCls(m.area)}">Área: ${areaName(m.area)}</span>
-                ${m.tipo ? `<span class="badge">${m.tipo==='OB'?'Obligatoria':'Opcional'}</span>` : ""}
-                ${prevChips(m)}
-              </div>
-            </div>
-            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-              <button class="btn-chip btn-apr" data-cod="${m.codigo}" ${!can && !isOk ? "disabled" : ""}>${isOk?"✓ Aprobada":"Marcar aprobada"}</button>
-              <button class="btn-chip btn-cur" data-cod="${m.codigo}" ${(!can && !isCur && !isOk) ? "disabled" : ""}>${isCur?"⏳ Cursando":"Marcar cursando"}</button>
-              <button class="btn-chip btn-notes" data-cod="${m.codigo}" data-name="${m.nombre}">✏️</button>
-            </div>
+      const grid = document.createElement("div");
+      grid.className = "malla"; // usa el grid de styles.css
+
+      arr.forEach((m) => {
+        const est = estadoDe(m.codigo);
+        const card = document.createElement("div");
+        // Colores por área: clases .A .C .MC .E .I .S .J
+        card.className = `materia ${m.area || ""} ${est === "aprobada" ? "aprobada" : ""}`;
+        card.dataset.cod = m.codigo;
+        card.title = tooltipMateria(m, est);
+
+        card.innerHTML = `
+          <div style="font-weight:700;line-height:1.2">${m.nombre}</div>
+          <div style="font-size:.82rem;opacity:.9;margin-top:4px">
+            ${m.codigo} · ${m.creditos || 0} créditos
           </div>
-          <div class="tag-row" style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
-            ${badgeFor(est)} ${gradeBadge(m.codigo)} ${noteBadge(m.codigo)}
-          </div>
+          ${m.previas?.length ? `<div style="font-size:.78rem;opacity:.9;margin-top:6px">Previas: ${m.previas.join(" · ")}</div>` : ""}
+          <div style="font-size:.78rem;margin-top:6px;opacity:.95">${labelEstado(est)}</div>
         `;
-        wrap.appendChild(el);
+
+        // Click: toggle aprobada si está disponible o ya aprobada
+        card.addEventListener("click", () => {
+          const estActual = estadoDe(m.codigo);
+          if (estActual === "bloqueada") {
+            const faltan = (m.previas || []).filter((c) => !state.aprobadas.has(c));
+            toast(`Bloqueada. Te faltan: ${faltan.join(", ")}`);
+            return;
+          }
+          if (state.aprobadas.has(m.codigo)) {
+            state.aprobadas.delete(m.codigo);
+          } else {
+            state.aprobadas.add(m.codigo);
+            state.cursando.delete(m.codigo);
+            toast(`¡Bien ahí! ${m.nombre} ✅`);
+          }
+          save();
+          render();
+          confettiIf100();
+        });
+
+        // Secundario: toggle "cursando" (click derecho)
+        card.addEventListener("contextmenu", (ev) => {
+          ev.preventDefault();
+          const estActual = estadoDe(m.codigo);
+          if (estActual === "bloqueada") {
+            toast("Aún no puedes marcarla como cursando.");
+            return;
+          }
+          if (state.cursando.has(m.codigo)) {
+            state.cursando.delete(m.codigo);
+          } else {
+            state.cursando.add(m.codigo);
+          }
+          save();
+          render();
+        });
+
+        grid.appendChild(card);
       });
 
-      card.appendChild(wrap);
-      list.appendChild(card);
+      section.appendChild(grid);
+      container.appendChild(section);
     });
-
-    // KPIs y barra
-    updateProgress();
-
-    // Listeners
-    $$(".btn-apr").forEach(b=> b.addEventListener("click", onToggleApr));
-    $$(".btn-cur").forEach(b=> b.addEventListener("click", onToggleCur));
-    $$(".btn-notes").forEach(b=> b.addEventListener("click", onOpenNotes));
   }
 
-  function prevChips(m){
-    if (!m.previas || !m.previas.length) return "";
-    const names = m.previas.map(code => {
-      const mm = state.data.materias.find(x=>x.codigo===code);
-      return mm ? mm.nombre : code;
-    });
-    return `<span class="badge">Previas: ${names.join(" · ")}</span>`;
+  function labelEstado(est) {
+    if (est === "aprobada") return "Estado: aprobada";
+    if (est === "cursando") return "Estado: cursando";
+    if (est === "disponible") return "Estado: disponible";
+    return "Estado: bloqueada";
   }
 
-  function badgeFor(est){
-    const map = {
-      aprobada:  '<span class="badge ok">Aprobada</span>',
-      disponible:'<span class="badge dis">Disponible</span>',
-      bloqueada: '<span class="badge pen">Bloqueada</span>',
-      cursando:  '<span class="badge cur">Cursando</span>',
-    };
-    return map[est] || "";
+  function tooltipMateria(m, est) {
+    const partes = [
+      `${m.nombre} (${m.codigo})`,
+      `${m.creditos || 0} créditos`,
+      `Área: ${m.area || "—"}`,
+      `Estado: ${est}`
+    ];
+    if (m.previas?.length) partes.push(`Previas: ${m.previas.join(", ")}`);
+    return partes.join(" · ");
   }
 
-  function gradeBadge(cod){
-    const g = grades[cod];
-    return g!=null ? `<span class="badge grade">Nota: ${g}</span>` : "";
+  // ========= Confeti (cuando se aprueban todos los créditos) =========
+  function confettiIf100() {
+    const tot = state.data.materias.reduce((s, x) => s + (+x.creditos || 0), 0);
+    const ok = state.data.materias
+      .filter((x) => state.aprobadas.has(x.codigo))
+      .reduce((s, x) => s + (+x.creditos || 0), 0);
+    if (tot > 0 && ok >= tot) simpleConfetti();
   }
-  function noteBadge(cod){
-    const t = (notas[cod]||"").trim();
-    return t ? `<span class="badge note" title="${escapeHtml(t)}">Nota guardada</span>` : "";
-  }
-
-  function onToggleApr(e){
-    const cod = e.currentTarget.dataset.cod;
-    if (state.aprobadas.has(cod)) {
-      state.aprobadas.delete(cod);
-    } else {
-      state.aprobadas.add(cod);
-      state.cursando.delete(cod);
-      toast(randomPhrase(cod), 1600);
-    }
-    saveState(); render(); maybeConfetti();
-  }
-
-  function onToggleCur(e){
-    const cod = e.currentTarget.dataset.cod;
-    if (state.cursando.has(cod)) {
-      state.cursando.delete(cod);
-    } else {
-      const est = getEstado(cod);
-      if (est==="disponible" || est==="aprobada") state.cursando.add(cod);
-    }
-    saveState(); render();
-  }
-
-  // Notas & calificaciones
-  const dlg = $("#noteModal"), noteTitle=$("#noteTitle"), noteText=$("#noteText"), gradeInput=$("#gradeInput");
-  $("#saveNoteBtn")?.addEventListener("click", (e)=>{
-    e.preventDefault();
-    const cod = dlg.dataset.cod;
-    notas[cod] = noteText.value || "";
-    const g = gradeInput.value.trim();
-    if (g!=="" && !isNaN(+g)) grades[cod]= +g; else delete grades[cod];
-    saveState();
-    dlg.close();
-    render();
-  });
-
-  function onOpenNotes(e){
-    const cod = e.currentTarget.dataset.cod;
-    const name = e.currentTarget.dataset.name || cod;
-    dlg.dataset.cod = cod;
-    noteTitle.textContent = `Notas – ${name}`;
-    noteText.value = notas[cod] || "";
-    gradeInput.value = grades[cod] ?? "";
-    dlg.showModal();
-  }
-
-  // Progreso
-  function updateProgress(){
-    const totCred = sumBy(state.data.materias, m=>+m.creditos||0);
-    const okCred  = sumBy(state.data.materias.filter(m=>state.aprobadas.has(m.codigo)), m=>+m.creditos||0);
-    const pct = totCred ? Math.round((okCred/totCred)*100) : 0;
-
-    $("#progressBar").style.width = pct + "%";
-    $("#progressPct").textContent = pct + "%";
-    $("#progressMsg").textContent = progressCopy(pct);
-    $("#progressText").textContent = `${countOk()} / ${state.data.materias.length} materias aprobadas · ${pct}%`;
-  }
-
-  function countOk(){ return state.data.materias.reduce((s,m)=> s + (state.aprobadas.has(m.codigo)?1:0), 0); }
-  function sumBy(arr, fn){ return arr.reduce((s,x)=> s + (fn(x)||0), 0); }
-
-  // Frases Notegood
-  const FRASES = [
-    "¡Bien ahí! {m} aprobada. Tu yo del futuro te aplaude 👏",
-    "{m} ✅ — organización + constancia = resultados.",
-    "¡Seguimos! {m} fuera de la lista 💪",
-    "Check en {m}. Paso a paso se llega lejos 🚶",
-    "Tu curva de aprendizaje sube con {m} 📈",
-    "Lo lograste: {m} ✔️ — ¡a hidratarse y seguir! 💧",
-    "Notegood vibes: {m} superada con éxito ✨"
-  ];
-  let pool=[...FRASES];
-  function randomPhrase(cod){
-    const name = state.data.materias.find(x=>x.codigo===cod)?.nombre || cod;
-    if (!pool.length) pool=[...FRASES];
-    const i = Math.floor(Math.random()*pool.length);
-    const f = pool.splice(i,1)[0];
-    return f.replace("{m}", name);
-  }
-
-  function progressCopy(pct){
-    if (pct === 100) return "¡Plan completo! Orgullo total ✨";
-    if (pct >= 90)  return "Últimos detalles y a festejar 🎉";
-    if (pct >= 75)  return "Último sprint, ya casi 💨";
-    if (pct >= 50)  return "Mitad de camino, paso firme 💪";
-    if (pct >= 25)  return "Buen envión, seguí así 🚀";
-    if (pct > 0)    return "Primeros checks, ¡bien ahí! ✅";
-    return "Arranquemos tranqui, paso a paso 👟";
-  }
-
-  // Confeti simple al 100%
-  let confettiShown=false;
-  function maybeConfetti(){
-    const txt = $("#progressText").textContent || "";
-    if (confettiShown) return;
-    if (txt.includes("100%")) {
-      confettiShown = true;
-      confetti();
-    }
-  }
-  function confetti(){
-    const n=120;
-    for(let i=0;i<n;i++){
-      const s=document.createElement('div');
-      s.style.position='fixed';
-      s.style.left=(Math.random()*100)+'vw';
-      s.style.top='-10px';
-      s.style.width=s.style.height=(8+Math.random()*6)+'px';
-      s.style.background='hsl('+Math.floor(Math.random()*360)+',90%,60%)';
-      s.style.opacity='0.9';
-      s.style.borderRadius='2px';
-      s.style.transform=`rotate(${Math.random()*360}deg)`;
-      s.style.zIndex='9999';
+  function simpleConfetti() {
+    const n = 120;
+    for (let i = 0; i < n; i++) {
+      const s = document.createElement("div");
+      s.style.position = "fixed";
+      s.style.left = Math.random() * 100 + "vw";
+      s.style.top = "-10px";
+      s.style.width = s.style.height = 8 + Math.random() * 6 + "px";
+      s.style.background = `hsl(${Math.floor(Math.random() * 360)},90%,60%)`;
+      s.style.opacity = "0.9";
+      s.style.borderRadius = "2px";
+      s.style.transform = `rotate(${Math.random() * 360}deg)`;
+      s.style.zIndex = "9999";
       document.body.appendChild(s);
-      const dur= 3000 + Math.random()*2500;
-      s.animate([{transform:s.style.transform, top:'-10px'},{transform:`rotate(${Math.random()*360}deg)`, top:'110vh'}],{duration:dur, easing:'ease-in'});
-      setTimeout(()=>s.remove(), dur);
+      const dur = 3000 + Math.random() * 2500;
+      s.animate(
+        [
+          { transform: s.style.transform, top: "-10px" },
+          { transform: `rotate(${Math.random() * 360}deg)`, top: "110vh" }
+        ],
+        { duration: dur, easing: "ease-in" }
+      );
+      setTimeout(() => s.remove(), dur);
     }
   }
 
-  // Helpers
-  function debounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; }
-  function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
-  function toast(msg, ms=1500){
-    const el=document.createElement('div');
-    el.textContent=msg;
-    el.style.cssText='position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#111827;color:#fff;padding:.6rem .8rem;border-radius:12px;border:1px solid rgba(255,255,255,.15);box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:9999;font-weight:600';
-    document.body.appendChild(el);
-    setTimeout(()=> el.remove(), ms);
-  }
-
-  function welcomeOnce(){
-    const k='welcome-admin-seen';
-    if (localStorage.getItem(k)) return;
-    toast("Bienvenida/o a tu Malla de Administración ✨ Marca tus materias y mirá cómo se desbloquea lo que sigue.", 3200);
-    localStorage.setItem(k, '1');
+  // ========= Boot =========
+  async function boot() {
+    load(); // carga progreso local
+    try {
+      const res = await fetch(DATA_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error(`No se pudo cargar ${DATA_URL}`);
+      const data = await res.json();
+      state.data = data || { areas: [], materias: [] };
+      state.byCodigo = new Map(
+        (state.data.materias || []).map((m) => [String(m.codigo), m])
+      );
+      render();
+      if (!localStorage.getItem("malla-admin-welcome")) {
+        toast("Bienvenida/o a tu malla ✨ Haz clic para marcar aprobadas. Click derecho: cursando.");
+        localStorage.setItem("malla-admin-welcome", "1");
+      }
+    } catch (e) {
+      console.error(e);
+      if (container) {
+        container.innerHTML =
+          '<div style="padding:1rem;background:#fee2e2;border:1px solid #fecaca;border-radius:12px;max-width:960px;margin:1rem auto;font-weight:600;color:#7f1d1d">No pude cargar <code>materias_admin.json</code>. Verificá que esté en la raíz del repo.</div>';
+      }
+    }
   }
 
   // Go!
-  boot();
+  document.addEventListener("DOMContentLoaded", boot);
 })();
