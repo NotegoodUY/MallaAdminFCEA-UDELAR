@@ -1,23 +1,213 @@
-/* Badges y chips */
-.badge{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid var(--line);font-size:.8rem}
-.badge.ok{background:#10b9811a;border-color:#10b98140;color:#065f46}
-.badge.dis{background:#60a5fa1a;border-color:#60a5fa40;color:#1e3a8a}
-.badge.pen{background:#f59e0b1a;border-color:#f59e0b40;color:#7c2d12}
-.badge.cur{background:#a78bfa1a;border-color:#a78bfa40;color:#4c1d95}
-.badge.grade{background:#e0f2fe;border-color:#93c5fd;color:#0c4a6e}
-.badge.note{background:#fce7f3;border-color:#f9a8d4;color:#831843}
-.btn-chip{border:1px solid var(--line);background:var(--card);color:var(--text);padding:.35rem .55rem;border-radius:999px;cursor:pointer}
-.btn-chip[disabled]{opacity:.5;cursor:not-allowed}
+/* ===== Reset básico ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  cursor: pointer;
+}
 
-/* Campos modal (mismo look que Medicina) */
-.note-form{padding:12px}
-.note-form .field{margin-bottom:10px}
-.note-form input,.note-form textarea{
-  width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;font-family:inherit
+/* ===== Variables ===== */
+:root {
+  --bg: #f9fafb;
+  --text: #111827;
+  --card: #ffffff;
+  --line: #e5e7eb;
+
+  /* Colores por área */
+  --area-A: #7c3aed; /* Administración */
+  --area-C: #059669; /* Contabilidad */
+  --area-MC: #2563eb; /* Métodos Cuantitativos */
+  --area-E: #ea580c; /* Economía */
+  --area-I: #14b8a6; /* Integradoras */
+  --area-S: #db2777; /* Sociales */
+  --area-J: #f59e0b; /* Jurídica */
 }
-body.dark .note-form input, body.dark .note-form textarea{
-  background:#0f162b;color:#e5e7eb;border-color:#1f2a44
+
+/* ===== Layout ===== */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem;
 }
-.note-actions{display:flex;gap:8px;justify-content:flex-end}
-.center{text-align:center}
-.muted{color:var(--muted)}
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 12px;
+}
+
+/* ===== Cards ===== */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1rem;
+  transition: box-shadow 0.2s ease;
+}
+.card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+/* Área (borde izquierdo por color) */
+.area-A {
+  border-left: 6px solid var(--area-A) !important;
+}
+.area-C {
+  border-left: 6px solid var(--area-C) !important;
+}
+.area-MC {
+  border-left: 6px solid var(--area-MC) !important;
+}
+.area-E {
+  border-left: 6px solid var(--area-E) !important;
+}
+.area-I {
+  border-left: 6px solid var(--area-I) !important;
+}
+.area-S {
+  border-left: 6px solid var(--area-S) !important;
+}
+.area-J {
+  border-left: 6px solid var(--area-J) !important;
+}
+
+/* ===== Badges ===== */
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 0.8rem;
+}
+.badge.ok {
+  background: #10b9811a;
+  border-color: #10b98140;
+  color: #065f46;
+}
+.badge.dis {
+  background: #60a5fa1a;
+  border-color: #60a5fa40;
+  color: #1e3a8a;
+}
+.badge.pen {
+  background: #f59e0b1a;
+  border-color: #f59e0b40;
+  color: #7c2d12;
+}
+.badge.cur {
+  background: #a78bfa1a;
+  border-color: #a78bfa40;
+  color: #4c1d95;
+}
+.badge.grade {
+  background: #e0f2fe;
+  border-color: #93c5fd;
+  color: #0c4a6e;
+}
+.badge.note {
+  background: #fce7f3;
+  border-color: #f9a8d4;
+  color: #831843;
+}
+
+/* Badges de área */
+.badge.area-A {
+  background: var(--area-A);
+  color: #fff;
+  border: none;
+}
+.badge.area-C {
+  background: var(--area-C);
+  color: #fff;
+  border: none;
+}
+.badge.area-MC {
+  background: var(--area-MC);
+  color: #fff;
+  border: none;
+}
+.badge.area-E {
+  background: var(--area-E);
+  color: #fff;
+  border: none;
+}
+.badge.area-I {
+  background: var(--area-I);
+  color: #fff;
+  border: none;
+}
+.badge.area-S {
+  background: var(--area-S);
+  color: #fff;
+  border: none;
+}
+.badge.area-J {
+  background: var(--area-J);
+  color: #fff;
+  border: none;
+}
+
+/* ===== Botones tipo chip ===== */
+.btn-chip {
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.btn-chip[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== Barra de progreso ===== */
+.progress {
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  height: 18px;
+}
+.progress-bar {
+  background: linear-gradient(90deg, #34d399, #10b981);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+/* ===== Topbar / filtros ===== */
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.topbar select,
+.topbar input {
+  padding: 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.topbar button {
+  padding: 0.4rem 0.6rem;
+  background: #f43f5e;
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+}
+.topbar button:hover {
+  background: #e11d48;
+}
