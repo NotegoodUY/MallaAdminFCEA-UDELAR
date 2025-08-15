@@ -7,52 +7,57 @@ html,body{height:100%}
   --muted:#64748b;
   --line:#e5e7eb;
   --card:#ffffff;
-  --shadow:0 10px 28px rgba(16,24,40,.08);
+
+  --shadow-lg:0 16px 40px rgba(16,24,40,.16);
+  --shadow-md:0 10px 28px rgba(16,24,40,.10);
+  --shadow-sm:0 6px 18px rgba(16,24,40,.08);
+
   --g1:#8b5cf6; /* morado */
   --g2:#06b6d4; /* cyan */
 }
 body{font-family:ui-sans-serif,system-ui,"Segoe UI",Roboto,Ubuntu,Arial; background:var(--bg); color:var(--text); line-height:1.55}
 a{color:inherit;text-decoration:none}
 
-/* ===== HERO centrado ===== */
+/* ===== Contenedor genérico ===== */
+.container{max-width:1100px;margin:0 auto;padding:0 16px}
+
+/* ===== HERO centrado y respirado ===== */
 .ng-hero{
   background:linear-gradient(135deg,var(--g1) 0%, var(--g2) 100%);
   color:#fff;
-  padding:68px 16px 74px;
+  padding:72px 16px 84px;
   position:relative;
   overflow:hidden;
 }
 .hero-wrap{max-width:980px;margin:0 auto;text-align:center}
-.brand{font-weight:800;letter-spacing:.3px; opacity:.98}
-.hero-title{font-size:clamp(2.2rem,5vw,3.2rem);font-weight:900;letter-spacing:.2px;margin:12px 0 10px}
+.brand{font-weight:800;letter-spacing:.3px;opacity:.98}
+.hero-title{font-size:clamp(2.2rem,5vw,3.2rem);font-weight:900;letter-spacing:.2px;margin:14px 0 12px}
 .brand-accent{background:rgba(255,255,255,.18);padding:0 .42rem;border-radius:.55rem}
-.hero-sub{opacity:.98;max-width:760px;margin:0 auto 18px}
+.hero-sub{opacity:.98;max-width:760px;margin:0 auto 22px}
 .btn-pri{
-  display:inline-block; margin-top:12px;
-  background:#111827; color:#fff; border:0; border-radius:14px;
-  padding:.9rem 1.2rem; font-weight:800; box-shadow:0 16px 36px rgba(17,24,39,.28);
+  display:inline-block;
+  margin-top:14px;
+  background:#0b1220; color:#fff;
+  border:0; border-radius:14px;
+  padding:1rem 1.4rem;
+  font-weight:900; font-size:1.05rem;
+  box-shadow:var(--shadow-lg);
   transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
 }
-.btn-pri:hover{transform:translateY(-1px); box-shadow:0 20px 40px rgba(17,24,39,.33); filter:brightness(1.05)}
+.btn-pri:hover{transform:translateY(-1px); box-shadow:0 24px 54px rgba(11,18,32,.28); filter:brightness(1.05)}
+.btn-pri:focus-visible{outline:3px solid #fff; outline-offset:3px}
 .btn-pulse{animation:pulse 1.8s ease-in-out infinite}
-@keyframes pulse{
-  0%,100%{transform:translateY(0) scale(1)}
-  50%{transform:translateY(-1px) scale(1.02)}
-}
+@keyframes pulse{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-1px) scale(1.02)}}
 .hero-shadow{
-  position:absolute;left:0;right:0;bottom:-22px;height:44px;
-  background:radial-gradient(120% 60px at 50% 0, rgba(0,0,0,.18), transparent 70%);
+  position:absolute;left:0;right:0;bottom:-24px;height:48px;
+  background:radial-gradient(120% 60px at 50% 0, rgba(0,0,0,.16), transparent 70%);
   filter:blur(10px); pointer-events:none;
 }
 
-/* ===== BENEFICIOS ===== */
-.benefits{padding:0 16px}
-.benefits-primary{ /* pegado al hero, con solape */
-  margin-top:-26px;
-}
+/* ===== BENEFICIOS PRINCIPALES ===== */
+.benefits-primary{margin-top:26px;margin-bottom:8px}
 .benefits-grid{
-  max-width:1100px; margin:0 auto 22px;
-  display:grid; gap:14px;
+  display:grid; gap:16px;
   grid-template-columns:repeat(2,minmax(0,1fr));
 }
 @media (min-width:1024px){ .benefits-grid{ grid-template-columns:repeat(4,1fr);} }
@@ -60,38 +65,46 @@ a{color:inherit;text-decoration:none}
 
 .card{
   background:var(--card); border:1px solid var(--line); border-radius:18px;
-  padding:18px; box-shadow:var(--shadow);
+  padding:18px; box-shadow:var(--shadow-md);
 }
-.card.soft{ display:flex; flex-direction:column; align-items:flex-start; gap:8px; min-height:132px; }
-.card.soft h3{font-size:1.1rem; font-weight:900}
+.card.soft{
+  display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start;
+  gap:10px; min-height:138px;
+}
+.card-primary{box-shadow:var(--shadow-lg)}
+.card-secondary{box-shadow:var(--shadow-sm)}
+.card.soft h3{font-size:1.12rem; font-weight:900}
 .card.soft p{color:var(--muted)}
+
+/* Iconos consistentes */
 .icon{
-  width:40px;height:40px;border-radius:12px;
-  display:grid; place-items:center; font-size:1.2rem;
-  background:#eef2ff; color:#111827;
+  width:44px;height:44px;border-radius:14px;
+  display:grid; place-items:center; font-size:1.25rem;
+  background:#fff; color:#111827;
+  box-shadow:0 6px 16px rgba(0,0,0,.06);
 }
 .icon.ring{
-  background: #fff;
-  border: 3px solid color-mix(in oklab, var(--ring, #22c55e), transparent 60%);
-  box-shadow: 0 6px 16px rgba(0,0,0,.06);
+  border:3px solid color-mix(in oklab, var(--ring, #8b5cf6), transparent 60%);
 }
 
-/* Aparición suave */
-.appear{animation:fadeUp .45s ease both}
-.appear.delayed{animation-delay:.15s}
-.pop{animation:pop .3s ease both}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@keyframes pop{from{transform:scale(.98);opacity:.85}to{transform:scale(1);opacity:1}}
+/* Apariciones sutiles (respetando accesibilidad) */
+@media (prefers-reduced-motion:no-preference){
+  .appear{animation:fadeUp .45s ease both}
+  .appear.delayed{animation-delay:.15s}
+  .pop{animation:pop .28s ease both}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes pop{from{transform:scale(.985);opacity:.92}to{transform:scale(1);opacity:1}}
+}
 
-/* ===== Layout base container ===== */
-.container{max-width:1100px;margin:0 auto;padding:0 16px}
-.cards3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:8px 0 30px}
+/* ===== BLOQUE SECUNDARIO (más respiración) ===== */
+.features-secondary{margin-top:24px;margin-bottom:34px}
+.cards3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
 
 /* ===== Footer ===== */
-.ng-footer{ text-align:center; color:var(--muted); font-size:.95rem; padding:22px 16px 40px }
+.ng-footer{ text-align:center; color:var(--muted); font-size:.95rem; padding:22px 16px 42px }
 
 /* =============================================================================
-   SECCIÓN MALLA (adentro) — soporta dos variantes de app.js:
+   SECCIÓN MALLA (adentro) — compatibilidad con dos variantes de app.js:
    - Variante .materia (tarjeta coloreada completa)
    - Variante .card.area (tarjeta blanca con borde lateral de color)
    ========================================================================== */
