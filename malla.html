@@ -30,16 +30,19 @@
       <p class="page-sub">Haz clic en las materias que ya aprobaste (clic derecho: marcar “cursando”).</p>
     </header>
 
-    <!-- IMPORTANTE: id="malla" (lo espera app.js) -->
+    <!-- Coloco los 3 ids más usados por distintos app.js (solo uno se usará) -->
     <div id="malla" class="malla"></div>
+    <div id="malla-root" class="malla"></div>
+    <div id="grid-container" class="malla"></div>
   </main>
 
+  <!-- Tu lógica original -->
   <script src="app.js"></script>
 
-  <!-- Contador créditos + tema -->
+  <!-- Tema + Contador de créditos -->
   <script>
     (function () {
-      // Tema
+      /* ===== THEME TOGGLE ===== */
       const root = document.documentElement;
       const key = "theme";
       const btn = document.getElementById("themeToggle");
@@ -58,7 +61,7 @@
         apply(next);
       });
 
-      // Créditos
+      /* ===== CREDIT COUNTER ===== */
       const approvedEl = document.getElementById("creditApproved");
       const totalEl = document.getElementById("creditTotal");
 
@@ -81,8 +84,9 @@
         if (totalEl) totalEl.textContent = computeTotalCredits();
       }
 
+      // Observa: clases (aprobada/cursando) y también inserción de tarjetas
       const mo = new MutationObserver(() => updateCredits());
-      mo.observe(document.body, { attributes:true, subtree:true, attributeFilter:["class"] });
+      mo.observe(document.body, { attributes:true, subtree:true, attributeFilter:["class"], childList:true });
 
       document.addEventListener("click", (e) => {
         if (e.target.closest(".materia, .card.area")) {
@@ -90,8 +94,7 @@
         }
       });
 
-      // Espera a que app.js pinte y calcula
-      window.addEventListener("load", () => setTimeout(updateCredits, 50));
+      window.addEventListener("load", () => setTimeout(updateCredits, 100));
     })();
   </script>
 </body>
