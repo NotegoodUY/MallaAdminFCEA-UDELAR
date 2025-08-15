@@ -1,0 +1,23 @@
+/* Badges y chips */
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid var(--line);font-size:.8rem}
+.badge.ok{background:#10b9811a;border-color:#10b98140;color:#065f46}
+.badge.dis{background:#60a5fa1a;border-color:#60a5fa40;color:#1e3a8a}
+.badge.pen{background:#f59e0b1a;border-color:#f59e0b40;color:#7c2d12}
+.badge.cur{background:#a78bfa1a;border-color:#a78bfa40;color:#4c1d95}
+.badge.grade{background:#e0f2fe;border-color:#93c5fd;color:#0c4a6e}
+.badge.note{background:#fce7f3;border-color:#f9a8d4;color:#831843}
+.btn-chip{border:1px solid var(--line);background:var(--card);color:var(--text);padding:.35rem .55rem;border-radius:999px;cursor:pointer}
+.btn-chip[disabled]{opacity:.5;cursor:not-allowed}
+
+/* Campos modal (mismo look que Medicina) */
+.note-form{padding:12px}
+.note-form .field{margin-bottom:10px}
+.note-form input,.note-form textarea{
+  width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;font-family:inherit
+}
+body.dark .note-form input, body.dark .note-form textarea{
+  background:#0f162b;color:#e5e7eb;border-color:#1f2a44
+}
+.note-actions{display:flex;gap:8px;justify-content:flex-end}
+.center{text-align:center}
+.muted{color:var(--muted)}
