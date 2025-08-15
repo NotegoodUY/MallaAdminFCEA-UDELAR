@@ -49,19 +49,19 @@ a.link:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
 .theme-toggle:hover{filter:brightness(1.05)}
 .theme-toggle:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
 
-/* ===== HERO (sin ilustraciones) ===== */
+/* ===== HERO (CTA centrado) ===== */
 .ng-hero{
   background:linear-gradient(135deg,var(--g1) 0%, var(--g2) 100%);
   color:#fff;
-  padding:28px 0 46px;
+  padding:34px 0 46px;
   position:relative; overflow:hidden;
 }
-.hero-only{display:flex;flex-direction:column;align-items:flex-start}
+.hero-only{display:flex;flex-direction:column;align-items:center;text-align:center}
 .hero-title{font-size:clamp(2.2rem,5vw,3.2rem);font-weight:900;letter-spacing:.2px;margin:8px 0 8px}
 .brand-accent{background:rgba(255,255,255,.18);padding:0 .42rem;border-radius:.55rem}
-.hero-sub{opacity:.98;max-width:720px;margin:0 0 16px 0}
+.hero-sub{opacity:.98;max-width:780px;margin:0 0 16px 0}
+.hero-cta.center{display:flex;justify-content:center}
 
-.hero-cta{display:flex;justify-content:center;align-items:center;margin-top:6px}
 .btn-cta{
   display:inline-block;
   background:linear-gradient(135deg,#0b1220 0%, #111827 100%);
@@ -85,7 +85,7 @@ a.link:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
   filter:blur(10px); pointer-events:none;
 }
 
-/* ===== BENEFICIOS ===== */
+/* ===== BENEFICIOS (icono + título en fila) ===== */
 .benefits-wrap{margin-top:22px;margin-bottom:18px}
 .benefits-grid{
   display:grid; gap:16px;
@@ -96,24 +96,26 @@ a.link:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
 
 .card{
   background:var(--card); border:1px solid var(--line); border-radius:18px;
-  padding:18px; box-shadow:var(--shadow-md);
+  padding:16px 18px; box-shadow:var(--shadow-md);
   transition:transform .14s ease, box-shadow .14s ease, filter .2s ease;
 }
 .card:hover{transform:translateY(-2px); box-shadow:var(--shadow-lg)}
-.card.benefit{display:flex;flex-direction:column;gap:10px;min-height:140px}
+.card.benefit{display:flex;flex-direction:column;gap:10px;min-height:120px} /* antes 140px */
 .card.primary{box-shadow:var(--shadow-lg)}
 .card.secondary{box-shadow:var(--shadow-sm)}
-.card h3{font-size:1.12rem;font-weight:900}
-.card p{color:var(--muted)}
+
+.benefit-header{display:flex;align-items:center;gap:10px} /* NUEVO: icono + título en fila */
+.card h3{font-size:1.08rem;font-weight:900;margin:0}
+.card p{color:var(--muted);margin-top:2px}
 
 .badge-icon{
-  width:44px;height:44px;border-radius:14px;display:grid;place-items:center;
+  width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
   color:#111827;background:#fff; box-shadow:0 6px 16px rgba(0,0,0,.06);
   border:3px solid color-mix(in oklab, var(--ring, #8b5cf6), transparent 60%);
 }
 html[data-theme="dark"] .badge-icon{color:#e5e7eb; background:#0b1220}
 
-/* Apariciones */
+/* Animaciones suaves */
 @media (prefers-reduced-motion:no-preference){
   .appear{animation:fadeUp .45s ease both}
   .pop{animation:pop .28s ease both}
@@ -171,13 +173,13 @@ html[data-theme="dark"] .badge-icon{color:#e5e7eb; background:#0b1220}
 .btn-chip[disabled]{opacity:.5;cursor:not-allowed}
 
 /* Colores por área */
-.A  { background:#7c3aed; }   /* Administración */
-.C  { background:#0ea5e9; }   /* Contabilidad */
-.MC { background:#16a34a; }   /* Métodos Cuantitativos */
-.E  { background:#f97316; }   /* Economía */
-.I  { background:#14b8a6; }   /* Integradoras */
-.S  { background:#db2777; }   /* Sociales */
-.J  { background:#f59e0b; }   /* Jurídica */
+.A  { background:#7c3aed; }
+.C  { background:#0ea5e9; }
+.MC { background:#16a34a; }
+.E  { background:#f97316; }
+.I  { background:#14b8a6; }
+.S  { background:#db2777; }
+.J  { background:#f59e0b; }
 
 .area.A{border-left:6px solid #7c3aed}
 .area.C{border-left:6px solid #0ea5e9}
@@ -187,4 +189,4 @@ html[data-theme="dark"] .badge-icon{color:#e5e7eb; background:#0b1220}
 .area.S{border-left:6px solid #db2777}
 .area.J{border-left:6px solid #f59e0b}
 
-section h3{font-size:1.15rem;margin:18px 0 10px;color:var(--text)}
+section h3{font-size:1.05rem;margin:0;color:var(--text)}
