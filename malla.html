@@ -3,104 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Malla Interactiva – Administración (Notegood)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <title>Malla Lic. Administración · Notegood</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="ng-header" role="banner">
-    <div class="header-top container">
-      <a href="index.html" class="logo">Notegood.uy ✨</a>
-      <div class="controls">
-        <button id="resetBtn" class="btn ghost" title="Borrar">🗑️ Borrar</button>
-        <button id="themeToggle" class="btn ghost" title="Modo oscuro">🌙</button>
-      </div>
+  <div class="container">
+    <h1 style="margin-bottom:0.5rem">Licenciatura en Administración · Malla Interactiva</h1>
+    <p style="margin-bottom:1rem;color:#6b7280">
+      Marca tus materias aprobadas y en curso. Los colores indican el área de conocimiento.
+    </p>
+
+    <!-- Barra de progreso -->
+    <div class="progress" style="margin-bottom:0.5rem">
+      <div id="progressBar" class="progress-bar" style="width:0%"></div>
     </div>
-
-    <div class="header-bottom">
-      <div class="progress">
-        <div class="progress-track"></div>
-        <div id="progressBar" class="progress-bar" style="width:0"></div>
-      </div>
-
-      <div class="mini-legend" aria-label="Leyenda">
-        <span><span class="lg lg-ok"></span> Aprobada</span>
-        <span><span class="lg lg-dis"></span> Disponible</span>
-        <span><span class="lg lg-blq"></span> Bloqueada</span>
-        <span><span class="lg lg-cur"></span> Cursando</span>
-      </div>
-
-      <div class="progress-kpi">
-        <span id="progressPct">0%</span>
-        <span id="progressMsg" class="progress-msg">¡A empezar!</span>
-      </div>
-
-      <p class="share-cta">¿Te gustó? Compártela o sígueme en <a href="https://instagram.com/notegood.uy" target="_blank" rel="noopener">@notegood.uy</a> 💜</p>
+    <div style="display:flex;justify-content:space-between;margin-bottom:1rem">
+      <div id="progressText" style="font-weight:600"></div>
+      <div id="progressPct" style="font-weight:600"></div>
     </div>
-  </header>
+    <div id="progressMsg" style="margin-bottom:1rem;color:#6b7280"></div>
 
-  <main class="container" style="padding:1rem">
     <!-- Filtros -->
-    <section class="card" style="padding:14px; margin-bottom:14px">
-      <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px">
-        <input id="q" type="search" placeholder="Buscar por código o nombre…" />
-        <select id="f-estado">
-          <option value="">Estado: Todos</option>
-          <option value="aprobada">Aprobada</option>
-          <option value="cursando">Cursando</option>
-          <option value="pendiente">Pendiente</option>
-        </select>
-        <select id="f-anio"><option value="">Año: Todos</option></select>
-        <select id="f-sem"><option value="">Semestre: Todos</option></select>
-        <select id="f-area"><option value="">Área: Todas</option></select>
-        <select id="f-tipo">
-          <option value="">Tipo: Todas</option>
-          <option value="OB">Obligatoria</option>
-          <option value="OP">Opcional</option>
-        </select>
-      </div>
-    </section>
+    <div class="topbar">
+      <input type="text" id="q" placeholder="Buscar materia..." />
+      <select id="f-estado">
+        <option value="">Estado</option>
+        <option value="aprobada">Aprobada</option>
+        <option value="cursando">Cursando</option>
+        <option value="disponible">Disponible</option>
+        <option value="bloqueada">Bloqueada</option>
+      </select>
+      <select id="f-anio">
+        <option value="">Año</option>
+      </select>
+      <select id="f-sem">
+        <option value="">Semestre</option>
+      </select>
+      <select id="f-area">
+        <option value="">Área</option>
+      </select>
+      <select id="f-tipo">
+        <option value="">Tipo</option>
+        <option value="OB">Obligatoria</option>
+        <option value="OP">Opcional</option>
+      </select>
+      <button id="resetBtn">Reiniciar progreso</button>
+    </div>
 
-    <!-- Listado -->
-    <section id="list" class="grid-container" role="main" aria-live="polite"></section>
+    <!-- Lista de materias -->
+    <div id="list"></div>
+  </div>
 
-    <p id="progressText" class="center muted" style="margin-top:10px">0 / 0 materias aprobadas · 0%</p>
-  </main>
-
-  <!-- Modal Notas -->
-  <dialog id="noteModal">
-    <form method="dialog" class="note-form">
-      <h3 id="noteTitle">Notas</h3>
-      <div class="field">
-        <label for="gradeInput">Calificación (0–12, opcional)</label>
-        <input id="gradeInput" type="number" min="0" max="12" step="1" inputmode="numeric" placeholder="0–12">
-      </div>
-      <div class="field">
-        <label for="noteText">Notas (texto libre)</label>
-        <textarea id="noteText" rows="6" placeholder="Resumen, recordatorios, etc."></textarea>
-      </div>
-      <div class="note-actions">
-        <button value="cancel" class="btn">Cancelar</button>
-        <button id="saveNoteBtn" class="btn-pri" value="default">Guardar</button>
-      </div>
-    </form>
+  <!-- Modal de notas -->
+  <dialog id="noteModal" style="border:none;border-radius:12px;padding:1rem;max-width:420px">
+    <h3 id="noteTitle" style="margin-bottom:0.5rem"></h3>
+    <textarea id="noteText" rows="4" placeholder="Escribe tus notas aquí..." style="width:100%;padding:0.5rem;margin-bottom:0.5rem"></textarea>
+    <input type="number" id="gradeInput" placeholder="Calificación" style="width:100%;padding:0.5rem;margin-bottom:0.5rem"/>
+    <button id="saveNoteBtn" style="width:100%;padding:0.5rem;background:#10b981;color:#fff;border:none;border-radius:6px">Guardar</button>
   </dialog>
 
-  <footer class="ng-footer">
-    <p>Hecho con 💜 por Notegood.uy</p>
-  </footer>
-
-  <script src="app.js" defer></script>
-  <script>
-    // Tema claro/oscuro igual a Medicina
-    const THEME_KEY='ng-theme';
-    const b=document.body;
-    const saved=localStorage.getItem(THEME_KEY);
-    if(saved==='dark') b.classList.add('dark');
-    document.getElementById('themeToggle').addEventListener('click',()=>{
-      b.classList.toggle('dark');
-      localStorage.setItem(THEME_KEY, b.classList.contains('dark')?'dark':'light');
-    });
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
