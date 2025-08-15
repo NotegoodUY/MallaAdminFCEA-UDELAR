@@ -8,7 +8,7 @@
 </head>
 <body>
 
-  <!-- Barra superior mínima + toggle tema -->
+  <!-- Barra superior + toggle tema -->
   <div class="topbar">
     <div class="container topbar-inner">
       <span class="brand-mini">Notegood.uy ✨</span>
@@ -16,7 +16,7 @@
     </div>
   </div>
 
-  <!-- HERO (sin ilustraciones) -->
+  <!-- HERO (CTA centrado, sin ilustraciones) -->
   <header class="ng-hero">
     <div class="container hero-only">
       <h1 class="hero-title">
@@ -26,63 +26,77 @@
         Convierte el caos de la carrera en un plan claro: avanza, desbloquea y celebra cada logro.
       </p>
 
-      <div class="hero-cta">
+      <div class="hero-cta center">
         <a href="malla.html" class="btn-cta" aria-label="Abrir mi malla y organizar mi carrera">🚀 Organizar mi carrera</a>
       </div>
     </div>
     <div class="hero-shadow"></div>
   </header>
 
-  <!-- BENEFICIOS (3x2) -->
+  <!-- BENEFICIOS (3x2, icono + título en la misma fila) -->
   <section class="container benefits-wrap">
     <div class="benefits-grid appear">
+
       <article class="card benefit primary pop" style="--ring:#22c55e">
-        <div class="badge-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <div class="benefit-header">
+          <div class="badge-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <h3>Guarda tu avance</h3>
         </div>
-        <h3>Guarda tu avance</h3>
         <p>Tu progreso se guarda en este dispositivo. No se pierde.</p>
       </article>
 
       <article class="card benefit primary pop" style="--ring:#f59e0b">
-        <div class="badge-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.6-2"/></svg>
+        <div class="benefit-header">
+          <div class="badge-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.6-2"/></svg>
+          </div>
+          <h3>Correlativas automáticas</h3>
         </div>
-        <h3>Correlativas automáticas</h3>
         <p>Se desbloquean según tus aprobadas. Sin cálculos raros.</p>
       </article>
 
       <article class="card benefit primary pop" style="--ring:#8b5cf6">
-        <div class="badge-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15l-6 6H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><path d="M15 15v6"/></svg>
+        <div class="benefit-header">
+          <div class="badge-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15l-6 6H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><path d="M15 15v6"/></svg>
+          </div>
+          <h3>Notas y calificaciones</h3>
         </div>
-        <h3>Notas y calificaciones</h3>
         <p>Guarda recordatorios y registra tu nota por materia.</p>
       </article>
 
       <article class="card benefit secondary pop" style="--ring:#0ea5e9">
-        <div class="badge-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5"/><rect x="12" y="9" width="3" height="9"/><rect x="17" y="6" width="3" height="12"/></svg>
+        <div class="benefit-header">
+          <div class="badge-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5"/><rect x="12" y="9" width="3" height="9"/><rect x="17" y="6" width="3" height="12"/></svg>
+          </div>
+          <h3>Motivación visual</h3>
         </div>
-        <h3>Motivación visual</h3>
         <p>Indicadores claros y feedback positivo estilo Notegood.</p>
       </article>
 
       <article class="card benefit secondary pop" style="--ring:#111827">
-        <div class="badge-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M7 7V5a5 5 0 0 1 10 0v2"/></svg>
+        <div class="benefit-header">
+          <div class="badge-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M7 7V5a5 5 0 0 1 10 0v2"/></svg>
+          </div>
+          <h3>Privado y simple</h3>
         </div>
-        <h3>Privado y simple</h3>
         <p>Sin cuentas ni datos: todo queda en tu navegador.</p>
       </article>
 
       <article class="card benefit secondary pop" style="--ring:#ec4899">
-        <div class="badge-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2 4 4 2-4 2-2 4-2-4-4-2 4-2z"/><path d="M20 14l1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/></svg>
+        <div class="benefit-header">
+          <div class="badge-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2 4 4 2-4 2-2 4-2-4-4-2 4-2z"/><path d="M20 14l1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/></svg>
+          </div>
+          <h3>Celebración final</h3>
         </div>
-        <h3>Celebración final</h3>
         <p>Confeti al completar la carrera. Cada logro cuenta.</p>
       </article>
+
     </div>
   </section>
 
@@ -94,25 +108,20 @@
     <p class="footer-links">Hecho con 💜 por Notegood.uy — <a href="#" class="link">Instagram</a> · <a href="#" class="link">GitHub</a> · <a href="mailto:hola@notegood.uy" class="link">Contacto</a></p>
   </footer>
 
-  <!-- Script: toggle claro/oscuro persistente -->
+  <!-- Toggle claro/oscuro persistente -->
   <script>
     (function(){
       const root = document.documentElement;
       const key = "theme";
       const btn = document.getElementById("themeToggle");
-
       const apply = (t) => {
         root.setAttribute("data-theme", t);
         btn.textContent = t === "dark" ? "☀️" : "🌙";
         localStorage.setItem(key, t);
       };
-
-      // estado inicial
       const saved = localStorage.getItem(key);
       const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       apply(saved || (prefersDark ? "dark" : "light"));
-
-      // click
       btn.addEventListener("click", () => {
         const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
         apply(next);
