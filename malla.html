@@ -1,25 +1,106 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Malla Interactiva — Administración</title>
   <link rel="stylesheet" href="styles.css" />
-  <script defer src="app.js"></script>
 </head>
 <body>
-  <header>
-    <h1>📌 Malla Interactiva — Administración</h1>
-    <p class="subtitulo">Haz clic en las materias que ya aprobaste (clic derecho: marcar “cursando”).</p>
-  </header>
 
-  <main>
-    <!-- aquí app.js inyecta las tarjetas -->
-    <div id="malla-container" class="malla"></div>
+  <!-- Topbar: marca + tema + contador -->
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span class="brand-mini">Notegood.uy ✨</span>
+
+      <div class="stats-bar">
+        <div class="stat-chip">
+          <span class="stat-label">Créditos aprobados</span>
+          <strong><span id="creditApproved">0</span> / <span id="creditTotal">0</span></strong>
+        </div>
+
+        <button id="themeToggle" class="theme-toggle" aria-label="Cambiar tema (claro/oscuro)">🌙</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="container" style="padding-top:10px">
+    <header style="margin-bottom:10px">
+      <h1 class="page-title">📌 Malla Interactiva — Administración</h1>
+      <p class="page-sub">Haz clic en las materias que ya aprobaste (clic derecho: marcar “cursando”).</p>
+    </header>
+
+    <!-- Aquí app.js insertará las materias -->
+    <div id="malla-root" class="malla"></div>
   </main>
 
-  <footer>
-    Hecho con 💜 y muuucho café por Notegood.uy — @notegood.uy
-  </footer>
+  <!-- Tu lógica original -->
+  <script src="app.js"></script>
+
+  <!-- Mejora: contador de créditos + toggle tema (no interfiere con app.js) -->
+  <script>
+    (function () {
+      // ===== THEME TOGGLE =====
+      const root = document.documentElement;
+      const key = "theme";
+      const btn = document.getElementById("themeToggle");
+      const apply = (t) => {
+        root.setAttribute("data-theme", t);
+        if (btn) btn.textContent = t === "dark" ? "☀️" : "🌙";
+        try { localStorage.setItem(key, t); } catch(e){}
+      };
+      try {
+        const saved = localStorage.getItem(key);
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        apply(saved || (prefersDark ? "dark" : "light"));
+      } catch(e){ apply("light"); }
+      if (btn) btn.addEventListener("click", () => {
+        const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        apply(next);
+      });
+
+      // ===== CREDIT COUNTER =====
+      const approvedEl = document.getElementById("creditApproved");
+      const totalEl = document.getElementById("creditTotal");
+
+      function extractCreditsFromCard(card) {
+        // Busca el texto "· XX créditos" dentro de la tarjeta
+        const m = card.textContent.match(/(\d+)\s*créditos?/i);
+        return m ? parseInt(m[1], 10) : 0;
+      }
+
+      function computeTotalCredits() {
+        let sum = 0;
+        document.querySelectorAll(".materia, .card.area").forEach(card => {
+          sum += extractCreditsFromCard(card);
+        });
+        return sum;
+      }
+
+      function computeApprovedCredits() {
+        let sum = 0;
+        document.querySelectorAll(".materia.aprobada, .card.area.aprobada").forEach(card => {
+          sum += extractCreditsFromCard(card);
+        });
+        return sum;
+      }
+
+      function updateCredits() {
+        if (approvedEl) approvedEl.textContent = computeApprovedCredits();
+        if (totalEl) totalEl.textContent = computeTotalCredits();
+      }
+
+      // Recalcular cuando cambien clases/estados o después de clicks
+      const mo = new MutationObserver(() => updateCredits());
+      mo.observe(document.body, { attributes:true, subtree:true, attributeFilter:["class"] });
+      document.addEventListener("click", (e) => {
+        if (e.target.closest(".materia, .card.area")) {
+          setTimeout(updateCredits, 0);
+        }
+      });
+
+      window.addEventListener("load", () => setTimeout(updateCredits, 0));
+    })();
+  </script>
 </body>
 </html>
