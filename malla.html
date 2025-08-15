@@ -8,7 +8,7 @@
 </head>
 <body>
 
-  <!-- Topbar: marca + tema + contador -->
+  <!-- Topbar -->
   <div class="topbar">
     <div class="container topbar-inner">
       <span class="brand-mini">Notegood.uy ✨</span>
@@ -30,17 +30,16 @@
       <p class="page-sub">Haz clic en las materias que ya aprobaste (clic derecho: marcar “cursando”).</p>
     </header>
 
-    <!-- Aquí app.js insertará las materias -->
-    <div id="malla-root" class="malla"></div>
+    <!-- IMPORTANTE: id="malla" (lo espera app.js) -->
+    <div id="malla" class="malla"></div>
   </main>
 
-  <!-- Tu lógica original -->
   <script src="app.js"></script>
 
-  <!-- Mejora: contador de créditos + toggle tema (no interfiere con app.js) -->
+  <!-- Contador créditos + tema -->
   <script>
     (function () {
-      // ===== THEME TOGGLE =====
+      // Tema
       const root = document.documentElement;
       const key = "theme";
       const btn = document.getElementById("themeToggle");
@@ -59,47 +58,40 @@
         apply(next);
       });
 
-      // ===== CREDIT COUNTER =====
+      // Créditos
       const approvedEl = document.getElementById("creditApproved");
       const totalEl = document.getElementById("creditTotal");
 
       function extractCreditsFromCard(card) {
-        // Busca el texto "· XX créditos" dentro de la tarjeta
         const m = card.textContent.match(/(\d+)\s*créditos?/i);
         return m ? parseInt(m[1], 10) : 0;
       }
-
       function computeTotalCredits() {
         let sum = 0;
-        document.querySelectorAll(".materia, .card.area").forEach(card => {
-          sum += extractCreditsFromCard(card);
-        });
+        document.querySelectorAll(".materia, .card.area").forEach(c => sum += extractCreditsFromCard(c));
         return sum;
       }
-
       function computeApprovedCredits() {
         let sum = 0;
-        document.querySelectorAll(".materia.aprobada, .card.area.aprobada").forEach(card => {
-          sum += extractCreditsFromCard(card);
-        });
+        document.querySelectorAll(".materia.aprobada, .card.area.aprobada").forEach(c => sum += extractCreditsFromCard(c));
         return sum;
       }
-
       function updateCredits() {
         if (approvedEl) approvedEl.textContent = computeApprovedCredits();
         if (totalEl) totalEl.textContent = computeTotalCredits();
       }
 
-      // Recalcular cuando cambien clases/estados o después de clicks
       const mo = new MutationObserver(() => updateCredits());
       mo.observe(document.body, { attributes:true, subtree:true, attributeFilter:["class"] });
+
       document.addEventListener("click", (e) => {
         if (e.target.closest(".materia, .card.area")) {
           setTimeout(updateCredits, 0);
         }
       });
 
-      window.addEventListener("load", () => setTimeout(updateCredits, 0));
+      // Espera a que app.js pinte y calcula
+      window.addEventListener("load", () => setTimeout(updateCredits, 50));
     })();
   </script>
 </body>
