@@ -1,24 +1,26 @@
 /* Notegood · Malla Administración (FCEA)
-   - Carga datos desde materias_admin.json (raíz)
-   - Colores por área (clases: A, C, MC, E, I, S, J)
-   - Previas (correlativas) con bloqueo/desbloqueo
-   - Guarda avance en localStorage (aprobadas y cursando)
-   - Render en #malla-container (malla.html)
+   - Lee materias desde materias_admin.json (raíz del repo)
+   - Tolera distintos formatos de JSON (array directo, {materias:[]}, {items:[]}, objeto índice)
+   - Acepta previas como `previas` o `correlativas` (array o string "A10, C10")
+   - Colores por área: clases A, C, MC, E, I, S, J
+   - Guarda/recupera progreso (aprobadas y cursando) en localStorage
+   - Renderiza en #malla-container agrupando por Año/Semestre
 */
 
 (function () {
   "use strict";
 
   // ========= Config =========
-  const DATA_URL = "materias_admin.json"; // <- la modificación clave
+  const DATA_URL = "materias_admin.json";       // <-- nombre/ruta del JSON en la raíz
   const LS_STATE = "malla-admin-state-v1";
+  const LS_WELCOME = "malla-admin-welcome";
 
   // ========= Estado =========
   const state = {
     aprobadas: new Set(),
     cursando: new Set(),
     data: { areas: [], materias: [] },
-    byCodigo: new Map()
+    byCodigo: new Map(),
   };
 
   // ========= Utils DOM =========
@@ -38,7 +40,7 @@
   function save() {
     const payload = {
       aprobadas: [...state.aprobadas],
-      cursando: [...state.cursando]
+      cursando: [...state.cursando],
     };
     localStorage.setItem(LS_STATE, JSON.stringify(payload));
   }
@@ -49,16 +51,64 @@
       const obj = JSON.parse(raw);
       state.aprobadas = new Set(obj.aprobadas || []);
       state.cursando = new Set(obj.cursando || []);
-    } catch {
-      /* noop */
-    }
+    } catch { /* noop */ }
   }
 
-  // ========= Lógica de previas =========
+  // ========= Normalización de datos =========
+  // Acepta claves alternativas y formatea previas/correlativas
+  function normalizeOne(r) {
+    // código y nombre
+    const codigo = String(
+      r.codigo ?? r.cod ?? r.code ?? r.id ?? r.ID ?? ""
+    );
+
+    const nombre = String(
+      r.nombre ?? r.name ?? r.titulo ?? r.título ?? r.Title ?? ""
+    );
+
+    // créditos
+    const c = r.creditos ?? r.créditos ?? r.credit ?? r.credits ?? 0;
+    const creditos = Number.parseInt(String(c), 10) || 0;
+
+    // área / año / semestre / tipo
+    const area = String(r.area ?? r.área ?? "").toUpperCase();
+    const anio = Number.parseInt(r.anio ?? r.año ?? r.year ?? 0, 10) || 0;
+    const semestre = Number.parseInt(r.semestre ?? r.sem ?? r.semester ?? 0, 10) || 0;
+    const tipo = String(r.tipo ?? r.type ?? "").toUpperCase();
+
+    // previas / correlativas (array o string)
+    let prev = r.previas ?? r.correlativas ?? [];
+    if (typeof prev === "string") {
+      prev = prev.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    if (!Array.isArray(prev)) prev = [];
+    prev = prev.map(String);
+
+    return { codigo, nombre, creditos, area, anio, semestre, tipo, previas: prev };
+  }
+
+  function normalizeRoot(data) {
+    if (Array.isArray(data)) return data;
+    const candidates = ["materias", "Materias", "items", "Items", "data", "Data"];
+    for (const k of candidates) {
+      if (Array.isArray(data?.[k])) return data[k];
+      if (data?.[k] && typeof data[k] === "object") return Object.values(data[k]);
+    }
+    if (typeof data === "object") return Object.values(data);
+    return [];
+  }
+
+  // ========= Lógica de previas/estados =========
   function canTake(m) {
-    const prev = Array.isArray(m.previas) ? m.previas : [];
+    if (!m) return true;
+    let prev = m.previas ?? [];
+    if (typeof prev === "string") {
+      prev = prev.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    if (!Array.isArray(prev)) prev = [];
     return prev.every((cod) => state.aprobadas.has(String(cod).trim()));
   }
+
   function estadoDe(codigo) {
     if (state.aprobadas.has(codigo)) return "aprobada";
     if (state.cursando.has(codigo)) return "cursando";
@@ -67,23 +117,39 @@
   }
 
   // ========= Render =========
+  function labelEstado(est) {
+    if (est === "aprobada")  return "Estado: aprobada";
+    if (est === "cursando")  return "Estado: cursando";
+    if (est === "disponible")return "Estado: disponible";
+    return "Estado: bloqueada";
+  }
+
+  function tooltipMateria(m, est) {
+    const prevs = m.previas?.length ? ` · Previas: ${m.previas.join(", ")}` : "";
+    return `${m.nombre} (${m.codigo}) · ${m.creditos || 0} créditos · Área: ${m.area || "—"} · ${labelEstado(est)}${prevs}`;
+  }
+
   function render() {
     if (!container) return;
     container.innerHTML = "";
 
-    // Agrupar por año/semestre
-    const items = state.data.materias
+    const materias = (state.data.materias || [])
       .slice()
-      .sort(
-        (a, b) =>
-          (a.anio || 0) - (b.anio || 0) ||
-          (a.semestre || 0) - (b.semestre || 0) ||
-          String(a.codigo).localeCompare(b.codigo)
+      .sort((a, b) =>
+        (a.anio || 0) - (b.anio || 0) ||
+        (a.semestre || 0) - (b.semestre || 0) ||
+        String(a.codigo).localeCompare(String(b.codigo))
       );
 
-    const key = (m) => `${m.anio || 0}º año · ${m.semestre || 0}º sem`;
+    if (!materias.length) {
+      container.innerHTML =
+        '<div style="padding:1rem;background:var(--card);border:1px dashed var(--line);border-radius:12px;color:var(--muted)">No hay materias para mostrar. Revisa <b>materias_admin.json</b>.</div>';
+      return;
+    }
+
     const groups = {};
-    for (const m of items) (groups[key(m)] ||= []).push(m);
+    const groupKey = (m) => `${m.anio || 0}º año · ${m.semestre || 0}º sem`;
+    for (const m of materias) (groups[groupKey(m)] ||= []).push(m);
 
     Object.entries(groups).forEach(([titulo, arr]) => {
       const section = document.createElement("section");
@@ -95,30 +161,35 @@
       section.appendChild(h);
 
       const grid = document.createElement("div");
-      grid.className = "malla"; // usa el grid de styles.css
+      grid.className = "malla"; // usa el grid del styles.css
 
       arr.forEach((m) => {
         const est = estadoDe(m.codigo);
         const card = document.createElement("div");
-        // Colores por área: clases .A .C .MC .E .I .S .J
-        card.className = `materia ${m.area || ""} ${est === "aprobada" ? "aprobada" : ""}`;
+
+        // color por área + estado
+        card.className = `materia ${m.area || ""} ${
+          est === "aprobada" ? "aprobada" : est === "cursando" ? "cursando" : est === "bloqueada" ? "bloqueada" : ""
+        }`;
+
         card.dataset.cod = m.codigo;
         card.title = tooltipMateria(m, est);
 
+        const prevText = m.previas?.length
+          ? `<div class="m-previas">Previas: ${m.previas.join(" · ")}</div>`
+          : "";
+
         card.innerHTML = `
-          <div style="font-weight:700;line-height:1.2">${m.nombre}</div>
-          <div style="font-size:.82rem;opacity:.9;margin-top:4px">
-            ${m.codigo} · ${m.creditos || 0} créditos
-          </div>
-          ${m.previas?.length ? `<div style="font-size:.78rem;opacity:.9;margin-top:6px">Previas: ${m.previas.join(" · ")}</div>` : ""}
-          <div style="font-size:.78rem;margin-top:6px;opacity:.95">${labelEstado(est)}</div>
+          <div class="m-nombre">${m.nombre}</div>
+          <div class="m-meta">${m.codigo} · ${m.creditos || 0} créditos</div>
+          ${prevText}
+          <div class="m-estado">${labelEstado(est)}</div>
         `;
 
-        // Click: toggle aprobada si está disponible o ya aprobada
         card.addEventListener("click", () => {
-          const estActual = estadoDe(m.codigo);
-          if (estActual === "bloqueada") {
-            const faltan = (m.previas || []).filter((c) => !state.aprobadas.has(c));
+          const e = estadoDe(m.codigo);
+          if (e === "bloqueada") {
+            const faltan = (m.previas || []).filter((c) => !state.aprobadas.has(String(c)));
             toast(`Bloqueada. Te faltan: ${faltan.join(", ")}`);
             return;
           }
@@ -134,19 +205,16 @@
           confettiIf100();
         });
 
-        // Secundario: toggle "cursando" (click derecho)
         card.addEventListener("contextmenu", (ev) => {
           ev.preventDefault();
-          const estActual = estadoDe(m.codigo);
-          if (estActual === "bloqueada") {
+          const e = estadoDe(m.codigo);
+          if (e === "bloqueada") {
             toast("Aún no puedes marcarla como cursando.");
             return;
           }
-          if (state.cursando.has(m.codigo)) {
-            state.cursando.delete(m.codigo);
-          } else {
-            state.cursando.add(m.codigo);
-          }
+          if (state.aprobadas.has(m.codigo)) return; // si ya está aprobada, no cursando
+          if (state.cursando.has(m.codigo)) state.cursando.delete(m.codigo);
+          else state.cursando.add(m.codigo);
           save();
           render();
         });
@@ -157,24 +225,6 @@
       section.appendChild(grid);
       container.appendChild(section);
     });
-  }
-
-  function labelEstado(est) {
-    if (est === "aprobada") return "Estado: aprobada";
-    if (est === "cursando") return "Estado: cursando";
-    if (est === "disponible") return "Estado: disponible";
-    return "Estado: bloqueada";
-  }
-
-  function tooltipMateria(m, est) {
-    const partes = [
-      `${m.nombre} (${m.codigo})`,
-      `${m.creditos || 0} créditos`,
-      `Área: ${m.area || "—"}`,
-      `Estado: ${est}`
-    ];
-    if (m.previas?.length) partes.push(`Previas: ${m.previas.join(", ")}`);
-    return partes.join(" · ");
   }
 
   // ========= Confeti (cuando se aprueban todos los créditos) =========
@@ -217,25 +267,29 @@
     try {
       const res = await fetch(DATA_URL, { cache: "no-store" });
       if (!res.ok) throw new Error(`No se pudo cargar ${DATA_URL}`);
-      const data = await res.json();
-      state.data = data || { areas: [], materias: [] };
-      state.byCodigo = new Map(
-        (state.data.materias || []).map((m) => [String(m.codigo), m])
-      );
+      const raw = await res.json();
+
+      // Soportar distintos “roots”
+      const root = normalizeRoot(raw);
+      const materias = root.map(normalizeOne).filter(m => m.codigo && m.nombre);
+
+      state.data = { areas: [], materias };
+      state.byCodigo = new Map(materias.map((m) => [String(m.codigo), m]));
+
       render();
-      if (!localStorage.getItem("malla-admin-welcome")) {
-        toast("Bienvenida/o a tu malla ✨ Haz clic para marcar aprobadas. Click derecho: cursando.");
-        localStorage.setItem("malla-admin-welcome", "1");
+
+      if (!localStorage.getItem(LS_WELCOME)) {
+        toast("Bienvenida/o a tu malla ✨ Clic = aprobada, clic derecho = cursando.");
+        localStorage.setItem(LS_WELCOME, "1");
       }
     } catch (e) {
       console.error(e);
       if (container) {
         container.innerHTML =
-          '<div style="padding:1rem;background:#fee2e2;border:1px solid #fecaca;border-radius:12px;max-width:960px;margin:1rem auto;font-weight:600;color:#7f1d1d">No pude cargar <code>materias_admin.json</code>. Verificá que esté en la raíz del repo.</div>';
+          '<div style="padding:1rem;background:#fee2e2;border:1px solid #fecaca;border-radius:12px;max-width:960px;margin:1rem auto;font-weight:600;color:#7f1d1d">No pude cargar <code>materias_admin.json</code>. Verificá que esté en la raíz del repo y tenga un formato válido.</div>';
       }
     }
   }
 
-  // Go!
   document.addEventListener("DOMContentLoaded", boot);
 })();
