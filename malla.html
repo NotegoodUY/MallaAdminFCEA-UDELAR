@@ -1,98 +1,162 @@
 <!DOCTYPE html>
 <html lang="es" data-theme="light">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Malla Interactiva — Administración</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notegood · Malla Interactiva — Administración</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <!-- Topbar simple -->
+  <!-- Topbar -->
   <div class="topbar">
     <div class="container topbar-inner">
-      <span class="brand-mini">Notegood.uy ✨</span>
-      <button id="themeToggle" class="theme-toggle" aria-label="Cambiar tema">🌙</button>
+      <a href="index.html" class="brand-mini">Notegood.uy ✨</a>
+      <nav class="topbar-actions">
+        <a href="index.html" class="btn-link">← Volver al landing</a>
+        <button id="themeToggle" class="theme-toggle" aria-label="Cambiar tema (claro/oscuro)">🌙</button>
+      </nav>
     </div>
   </div>
 
-  <main class="container" style="padding-top:12px">
-    <header style="margin-bottom:12px">
-      <h1 class="page-title">📌 Malla Interactiva — Administración</h1>
-      <p class="page-sub">Haz clic en las materias que ya aprobaste (clic derecho: marcar “cursando”).</p>
-    </header>
+  <!-- Encabezado -->
+  <header class="container section">
+    <h1 class="page-title">📌 Malla Interactiva — Administración</h1>
+    <p class="muted">
+      Clic: <b>aprobada</b> &nbsp;·&nbsp; Clic derecho: <b>cursando</b>. Tu progreso se guarda en este dispositivo.
+    </p>
 
-    <!-- KPIs + barra de progreso (IDs que tu app.js espera) -->
-    <section class="card" style="margin-bottom:12px; padding:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-        <div id="progress-label" class="muted">Progreso</div>
-        <div class="kpis" style="display:flex;gap:14px">
-          <div class="kpi"><small>Materias aprobadas</small><b id="kpi-aprobadas">0</b></div>
-          <div class="kpi"><small>Materias totales</small><b id="kpi-totales">0</b></div>
-          <div class="kpi"><small>Créditos aprobados</small><b id="kpi-creditos">0</b></div>
-        </div>
+    <!-- Leyenda -->
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot ok">✅</span> Aprobada</span>
+      <span class="legend-item"><span class="legend-dot in">📚</span> Cursando</span>
+      <span class="legend-item"><span class="legend-dot free">🔓</span> Disponible</span>
+      <span class="legend-item"><span class="legend-dot lock">🔒</span> Bloqueada</span>
+      <span class="legend-item"><span class="chip">OB</span> Obligatoria</span>
+      <span class="legend-item"><span class="chip alt">OP</span> Opcional</span>
+    </div>
+
+    <!-- Contadores -->
+    <div class="cards-row stat-row">
+      <div class="stat-pill">Materias aprobadas <strong id="countAprobadas">0</strong></div>
+      <div class="stat-pill">Materias totales <strong id="countTotales">0</strong></div>
+      <div class="stat-pill">Créditos aprobados <strong id="countCreditos">0</strong></div>
+    </div>
+  </header>
+
+  <!-- Filtros / acciones -->
+  <section class="container section">
+    <div class="toolbar">
+
+      <div class="control">
+        <label for="filterText">Buscar</label>
+        <input id="filterText" type="text" placeholder="Código o nombre…" />
       </div>
-      <div class="bar" style="margin-top:8px"><span id="bar" style="width:0%"></span></div>
-    </section>
 
-    <!-- Filtros (IDs exactos) -->
-    <section class="filters card" style="margin-bottom:12px; padding:12px; display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px">
-      <input id="q" type="search" placeholder="Buscar por código o nombre…" style="grid-column:span 2" />
-      <select id="f-estado">
-        <option value="">Estado: Todos</option>
-        <option value="aprobada">Aprobada</option>
-        <option value="cursando">Cursando</option>
-        <option value="pendiente">Pendiente</option>
-      </select>
-      <select id="f-anio"><option value="">Año: Todos</option></select>
-      <select id="f-sem"><option value="">Semestre: Todos</option></select>
-      <select id="f-area"><option value="">Área: Todas</option></select>
-      <select id="f-tipo">
-        <option value="">Tipo: Todas</option>
-        <option value="OB">Obligatoria</option>
-        <option value="OP">Opcional</option>
-      </select>
-    </section>
+      <div class="control">
+        <label for="filterEstado">Estado</label>
+        <select id="filterEstado">
+          <option value="">Todos</option>
+          <option value="aprobada">Aprobada ✅</option>
+          <option value="cursando">Cursando 📚</option>
+          <option value="disponible">Disponible 🔓</option>
+          <option value="bloqueada">Bloqueada 🔒</option>
+        </select>
+      </div>
 
-    <!-- Accesos rápidos (IDs que usa app.js) -->
-    <section style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-      <button id="quick-ob" class="btn-cta" style="padding:.5rem 1rem">Obligatorias</button>
-      <button id="quick-op" class="btn-cta" style="padding:.5rem 1rem">Opcionales</button>
-      <button id="quick-clear" class="btn-cta" style="padding:.5rem 1rem; background:#334155">Limpiar filtros</button>
-      <button id="btn-reset" class="btn-cta" style="padding:.5rem 1rem; background:#ef4444">Reiniciar progreso</button>
-      <button id="btn-onboarding" class="btn-cta" style="padding:.5rem 1rem; background:#0ea5e9">¿Cómo usar?</button>
-    </section>
+      <div class="control">
+        <label for="filterYear">Año</label>
+        <select id="filterYear">
+          <option value="">Todos</option>
+          <option value="1">1º</option>
+          <option value="2">2º</option>
+          <option value="3">3º</option>
+          <option value="4">4º</option>
+        </select>
+      </div>
 
-    <!-- Listado donde tu app.js renderiza -->
-    <div id="list" class="list"></div>
+      <div class="control">
+        <label for="filterSem">Semestre</label>
+        <select id="filterSem">
+          <option value="">Todos</option>
+          <option value="1">1º</option>
+          <option value="2">2º</option>
+          <option value="3">3º</option>
+          <option value="4">4º</option>
+          <option value="5">5º</option>
+          <option value="6">6º</option>
+          <option value="7">7º</option>
+          <option value="8">8º</option>
+        </select>
+      </div>
+
+      <div class="control">
+        <label for="filterTipo">Tipo</label>
+        <select id="filterTipo">
+          <option value="">Todas</option>
+          <option value="OB">Obligatoria</option>
+          <option value="OP">Opcional</option>
+        </select>
+      </div>
+
+      <div class="control">
+        <label for="filterArea">Área</label>
+        <select id="filterArea">
+          <option value="">Todas</option>
+          <option value="A">A — Admin.</option>
+          <option value="C">C — Contab.</option>
+          <option value="MC">MC — Métodos</option>
+          <option value="E">E — Economía</option>
+          <option value="I">I — Integradoras</option>
+          <option value="S">S — Sociales</option>
+          <option value="J">J — Jurídica</option>
+        </select>
+      </div>
+
+      <div class="control control-actions">
+        <button id="btnClearFilters" class="btn ghost">Limpiar filtros</button>
+        <button id="btnReset" class="btn danger">Reiniciar progreso</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Contenedor que el app.js usa para renderizar la malla -->
+  <main class="container section">
+    <div id="malla-container"></div>
   </main>
 
-  <!-- Onboarding (IDs esperados) -->
-  <div id="onboarding" class="onboarding" hidden>
-    <div class="onb-inner card">
-      <div class="head"><h3>¿Cómo usar la malla?</h3></div>
-      <div class="body">
-        <ol>
-          <li>Haz clic en las materias aprobadas para marcarlas.</li>
-          <li>Con clic derecho puedes marcarlas como “Cursando”.</li>
-          <li>Usa los filtros para buscar por área, año o estado.</li>
-        </ol>
-      </div>
-      <div class="foot"><button id="ob-close" class="btn-cta" style="padding:.5rem 1rem">Entendido</button></div>
+  <!-- Footer mini -->
+  <footer class="ng-footer">
+    <div class="container footer-inner">
+      <p class="muted">Tip: usa los filtros para enfocarte. Cualquier duda, ¡me escribes!</p>
     </div>
-  </div>
+  </footer>
 
-  <!-- Scripts -->
-  <script src="app.js"></script>
+  <!-- Toggle claro/oscuro (igual que en el index) -->
   <script>
-    // Toggle tema (reutiliza el del landing)
     (function(){
-      const root=document.documentElement, key="theme", btn=document.getElementById("themeToggle");
-      const apply=t=>{root.setAttribute("data-theme",t); if(btn) btn.textContent=t==="dark"?"☀️":"🌙"; try{localStorage.setItem(key,t)}catch(e){}};
-      const saved=localStorage.getItem(key), prefersDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
-      apply(saved || (prefersDark?"dark":"light"));
-      btn&&btn.addEventListener("click",()=>apply(root.getAttribute("data-theme")==="dark"?"light":"dark"));
+      const root = document.documentElement;
+      const key = "theme";
+      const btn = document.getElementById("themeToggle");
+      const apply = (t) => {
+        root.setAttribute("data-theme", t);
+        if (btn) btn.textContent = t === "dark" ? "☀️" : "🌙";
+        localStorage.setItem(key, t);
+      };
+      const saved = localStorage.getItem(key);
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      apply(saved || (prefersDark ? "dark" : "light"));
+      if (btn) {
+        btn.addEventListener("click", () => {
+          const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+          apply(next);
+        });
+      }
     })();
   </script>
+
+  <!-- App -->
+  <script src="app.js"></script>
 </body>
 </html>
