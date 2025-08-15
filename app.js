@@ -2,21 +2,22 @@
    - Lee materias_admin.json (raíz)
    - Header centrado + barra de progreso
    - Filtros: texto, estado, año, semestre, tipo, área
-   - Botón "➕ Agregar opcionales": solo se muestran OP seleccionadas
-   - Persistencia: aprobadas, cursando y opcionalesSeleccionadas (localStorage)
+   - "➕ Agregar opcionales": solo se muestran OP seleccionadas
+   - Persistencia: aprobadas, cursando, opcionalesSeleccionadas (localStorage)
+   - Emojis/leyenda de estado, chip OB/OP
 */
 
 (function () {
   "use strict";
 
   const DATA_URL = "materias_admin.json";
-  const LS_STATE = "malla-admin-state-v2"; // <- versión nueva por opcionales
+  const LS_STATE = "malla-admin-state-v2"; // versión con opcionales
   const LS_WELCOME = "malla-admin-welcome";
 
   const state = {
     aprobadas: new Set(),
     cursando: new Set(),
-    opcionalesSel: new Set(), // codigos OP que deben mostrarse en la grilla
+    opcionalesSel: new Set(), // codigos OP visibles en grilla
     data: { materias: [] },
     byCodigo: new Map(),
     filters: { text:"", estado:"", year:"", sem:"", tipo:"", area:"" }
@@ -25,6 +26,8 @@
   // DOM
   const $ = (s) => document.querySelector(s);
   const container = $("#malla-container");
+
+  // Filtros
   const elText = $("#filterText"), elEstado = $("#filterEstado"), elYear = $("#filterYear"),
         elSem = $("#filterSem"), elTipo = $("#filterTipo"), elArea = $("#filterArea");
   const btnClear = $("#btnClearFilters"), btnReset = $("#btnReset"), btnOpc = $("#btnOpcionales");
@@ -33,36 +36,38 @@
   const opModal = $("#opModal"), opClose = $("#opClose"), opSave = $("#opSave"), opClear = $("#opClear"),
         opSearch = $("#opSearch"), opList = $("#opList");
 
-  // Persistencia
-  function save() {
-    const payload = {
-      aprobadas:[...state.aprobadas], cursando:[...state.cursando], opcionalesSel:[...state.opcionalesSel]
-    };
-    localStorage.setItem(LS_STATE, JSON.stringify(payload));
-  }
-  function load() {
-    try {
-      const raw = localStorage.getItem(LS_STATE);
-      if (!raw) return;
-      const obj = JSON.parse(raw);
-      state.aprobadas = new Set(obj.aprobadas || []);
-      state.cursando = new Set(obj.cursando || []);
-      state.opcionalesSel = new Set(obj.opcionalesSel || []);
-    } catch {}
-  }
-  function resetProgress() {
-    state.aprobadas.clear();
-    state.cursando.clear();
-    save(); render(); updateProgress();
-    toast("Se reinició tu progreso.");
-  }
-
-  // Utilidades
+  // Toast
   function toast(msg, ms=1700){
     const el=document.createElement("div");
     el.textContent=msg;
     el.style.cssText="position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#111827;color:#fff;padding:.6rem .8rem;border-radius:12px;border:1px solid rgba(255,255,255,.15);box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:9999;font-weight:600";
     document.body.appendChild(el); setTimeout(()=>el.remove(),ms);
+  }
+
+  // Persistencia
+  function save(){
+    const payload = {
+      aprobadas:[...state.aprobadas],
+      cursando:[...state.cursando],
+      opcionalesSel:[...state.opcionalesSel]
+    };
+    localStorage.setItem(LS_STATE, JSON.stringify(payload));
+  }
+  function load(){
+    try{
+      const raw=localStorage.getItem(LS_STATE);
+      if(!raw) return;
+      const o=JSON.parse(raw);
+      state.aprobadas = new Set(o.aprobadas||[]);
+      state.cursando  = new Set(o.cursando ||[]);
+      state.opcionalesSel = new Set(o.opcionalesSel ||[]);
+    }catch{}
+  }
+  function resetProgress(){
+    state.aprobadas.clear();
+    state.cursando.clear();
+    save(); render(); updateProgress();
+    toast("Se reinició tu progreso.");
   }
 
   // Normalización
@@ -76,10 +81,10 @@
   function normalizeOne(r){
     const codigo=String(r.codigo ?? r.cod ?? r.id ?? "");
     const nombre=String(r.nombre ?? r.name ?? "");
-    const creditos=Number.parseInt(r.creditos ?? r.credits ?? 0,10)||0;
+    const creditos=Number.parseInt(r.creditos ?? r.credits ?? 0,10) || 0;
     const area=String(r.area ?? "").toUpperCase();
-    const anio=Number.parseInt(r.anio ?? r.año ?? r.year ?? 0,10)||0;
-    const semestre=Number.parseInt(r.semestre ?? r.sem ?? r.semester ?? 0,10)||0;
+    const anio=Number.parseInt(r.anio ?? r.año ?? r.year ?? 0,10) || 0;
+    const semestre=Number.parseInt(r.semestre ?? r.sem ?? r.semester ?? 0,10) || 0;
     const tipo=String(r.tipo ?? "").toUpperCase(); // OB/OP
     let prev=r.previas ?? r.correlativas ?? [];
     if (typeof prev==="string") prev=prev.split(",").map(s=>s.trim()).filter(Boolean);
@@ -94,7 +99,7 @@
   }
   function estadoDe(codigo){
     if (state.aprobadas.has(codigo)) return "aprobada";
-    if (state.cursando.has(codigo)) return "cursando";
+    if (state.cursando.has(codigo))  return "cursando";
     const m = state.byCodigo.get(codigo);
     return canTake(m) ? "disponible" : "bloqueada";
   }
@@ -184,7 +189,6 @@
       state.opcionalesSel = next; save(); render(); updateProgress(); closeOpcionales();
       toast("Selección de opcionales guardada.");
     });
-    // cerrar al click en backdrop
     const backdrop = opModal?.querySelector(".op-backdrop");
     backdrop && backdrop.addEventListener("click", closeOpcionales);
   }
