@@ -2,66 +2,24 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Malla Lic. Administración · Notegood</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Malla Interactiva — Administración</title>
   <link rel="stylesheet" href="styles.css" />
+  <script defer src="app.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1 style="margin-bottom:0.5rem">Licenciatura en Administración · Malla Interactiva</h1>
-    <p style="margin-bottom:1rem;color:#6b7280">
-      Marca tus materias aprobadas y en curso. Los colores indican el área de conocimiento.
-    </p>
+  <header>
+    <h1>📌 Malla Interactiva — Administración</h1>
+    <p class="subtitulo">Haz clic en las materias que ya aprobaste</p>
+  </header>
 
-    <!-- Barra de progreso -->
-    <div class="progress" style="margin-bottom:0.5rem">
-      <div id="progressBar" class="progress-bar" style="width:0%"></div>
-    </div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:1rem">
-      <div id="progressText" style="font-weight:600"></div>
-      <div id="progressPct" style="font-weight:600"></div>
-    </div>
-    <div id="progressMsg" style="margin-bottom:1rem;color:#6b7280"></div>
+  <main>
+    <!-- contenedor donde app.js renderiza la malla -->
+    <div id="malla-container" class="malla"></div>
+  </main>
 
-    <!-- Filtros -->
-    <div class="topbar">
-      <input type="text" id="q" placeholder="Buscar materia..." />
-      <select id="f-estado">
-        <option value="">Estado</option>
-        <option value="aprobada">Aprobada</option>
-        <option value="cursando">Cursando</option>
-        <option value="disponible">Disponible</option>
-        <option value="bloqueada">Bloqueada</option>
-      </select>
-      <select id="f-anio">
-        <option value="">Año</option>
-      </select>
-      <select id="f-sem">
-        <option value="">Semestre</option>
-      </select>
-      <select id="f-area">
-        <option value="">Área</option>
-      </select>
-      <select id="f-tipo">
-        <option value="">Tipo</option>
-        <option value="OB">Obligatoria</option>
-        <option value="OP">Opcional</option>
-      </select>
-      <button id="resetBtn">Reiniciar progreso</button>
-    </div>
-
-    <!-- Lista de materias -->
-    <div id="list"></div>
-  </div>
-
-  <!-- Modal de notas -->
-  <dialog id="noteModal" style="border:none;border-radius:12px;padding:1rem;max-width:420px">
-    <h3 id="noteTitle" style="margin-bottom:0.5rem"></h3>
-    <textarea id="noteText" rows="4" placeholder="Escribe tus notas aquí..." style="width:100%;padding:0.5rem;margin-bottom:0.5rem"></textarea>
-    <input type="number" id="gradeInput" placeholder="Calificación" style="width:100%;padding:0.5rem;margin-bottom:0.5rem"/>
-    <button id="saveNoteBtn" style="width:100%;padding:0.5rem;background:#10b981;color:#fff;border:none;border-radius:6px">Guardar</button>
-  </dialog>
-
-  <script src="app.js"></script>
+  <footer>
+    <p>Hecho con 💜 y mucho café por <strong>Notegood</strong></p>
+  </footer>
 </body>
 </html>
