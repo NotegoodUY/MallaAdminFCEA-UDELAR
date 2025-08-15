@@ -37,19 +37,33 @@ a.link{color:#0ea5e9}
 a.link:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
 .container{max-width:1100px;margin:0 auto;padding:0 16px}
 
-/* ===== Topbar ===== */
-.topbar{position:relative;z-index:5;background:transparent;padding:10px 0}
-.topbar-inner{display:flex;justify-content:space-between;align-items:center}
-.brand-mini{font-weight:800;opacity:.95}
+/* ===== Topbar (común) ===== */
+.topbar{position:sticky;top:0;z-index:50;background:linear-gradient(135deg,var(--g1) 0%, var(--g2) 100%);color:#fff}
+.topbar-inner{display:flex;justify-content:space-between;align-items:center;min-height:54px}
+.brand-mini{font-weight:800;opacity:.98}
 .theme-toggle{
   font-size:1.05rem;line-height:1;cursor:pointer;border:none;border-radius:10px;
   padding:.5rem .6rem;background:var(--card);color:var(--text);
-  box-shadow:var(--shadow-sm);
+  box-shadow:var(--shadow-sm); margin-left:8px;
 }
 .theme-toggle:hover{filter:brightness(1.05)}
 .theme-toggle:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
 
-/* ===== HERO (CTA centrado) ===== */
+/* Barra de stats (contador créditos) */
+.stats-bar{display:flex;align-items:center;gap:10px}
+.stat-chip{
+  display:flex;align-items:center;gap:8px;
+  padding:.45rem .7rem;border-radius:999px;background:rgba(255,255,255,.9);color:#111827;
+  box-shadow:var(--shadow-sm); font-weight:600;
+}
+html[data-theme="dark"] .stat-chip{background:#111827;color:#e5e7eb}
+.stat-label{opacity:.8;font-weight:700}
+
+/* ===== Títulos en páginas internas ===== */
+.page-title{font-size:1.6rem;font-weight:900;margin:14px 0 2px}
+.page-sub{color:var(--muted);margin-bottom:8px}
+
+/* ===== HERO del landing (lo mantenemos por si está en index) ===== */
 .ng-hero{
   background:linear-gradient(135deg,var(--g1) 0%, var(--g2) 100%);
   color:#fff;
@@ -61,7 +75,6 @@ a.link:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
 .brand-accent{background:rgba(255,255,255,.18);padding:0 .42rem;border-radius:.55rem}
 .hero-sub{opacity:.98;max-width:780px;margin:0 0 16px 0}
 .hero-cta.center{display:flex;justify-content:center}
-
 .btn-cta{
   display:inline-block;
   background:linear-gradient(135deg,#0b1220 0%, #111827 100%);
@@ -78,109 +91,71 @@ a.link:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
 }
 .btn-cta:active{transform:translateY(0); filter:brightness(.98)}
 .btn-cta:focus-visible{outline:3px solid #fff; outline-offset:3px}
-
 .hero-shadow{
   position:absolute;left:0;right:0;bottom:-20px;height:40px;
   background:radial-gradient(120% 60px at 50% 0, rgba(0,0,0,.18), transparent 70%);
   filter:blur(10px); pointer-events:none;
 }
 
-/* ===== BENEFICIOS (icono + título en fila) ===== */
+/* ===== BENEFICIOS (solo landing) ===== */
 .benefits-wrap{margin-top:22px;margin-bottom:18px}
-.benefits-grid{
-  display:grid; gap:16px;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-}
+.benefits-grid{display:grid; gap:16px; grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:980px){ .benefits-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:640px){ .benefits-grid{ grid-template-columns:1fr; } }
-
-.card{
-  background:var(--card); border:1px solid var(--line); border-radius:18px;
-  padding:16px 18px; box-shadow:var(--shadow-md);
-  transition:transform .14s ease, box-shadow .14s ease, filter .2s ease;
-}
+.card{background:var(--card); border:1px solid var(--line); border-radius:18px; padding:16px 18px; box-shadow:var(--shadow-md); transition:transform .14s ease, box-shadow .14s ease, filter .2s ease}
 .card:hover{transform:translateY(-2px); box-shadow:var(--shadow-lg)}
-.card.benefit{display:flex;flex-direction:column;gap:10px;min-height:120px} /* antes 140px */
+.card.benefit{display:flex;flex-direction:column;gap:10px;min-height:120px}
 .card.primary{box-shadow:var(--shadow-lg)}
 .card.secondary{box-shadow:var(--shadow-sm)}
-
-.benefit-header{display:flex;align-items:center;gap:10px} /* NUEVO: icono + título en fila */
+.benefit-header{display:flex;align-items:center;gap:10px}
 .card h3{font-size:1.08rem;font-weight:900;margin:0}
 .card p{color:var(--muted);margin-top:2px}
-
-.badge-icon{
-  width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
-  color:#111827;background:#fff; box-shadow:0 6px 16px rgba(0,0,0,.06);
-  border:3px solid color-mix(in oklab, var(--ring, #8b5cf6), transparent 60%);
-}
+.badge-icon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:#111827;background:#fff; box-shadow:0 6px 16px rgba(0,0,0,.06); border:3px solid color-mix(in oklab, var(--ring, #8b5cf6), transparent 60%)}
 html[data-theme="dark"] .badge-icon{color:#e5e7eb; background:#0b1220}
 
-/* Animaciones suaves */
-@media (prefers-reduced-motion:no-preference){
-  .appear{animation:fadeUp .45s ease both}
-  .pop{animation:pop .28s ease both}
-  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  @keyframes pop{from{transform:scale(.985);opacity:.92}to{transform:scale(1);opacity:1}}
-}
-
-/* ===== CTA sticky móvil ===== */
-.cta-sticky{
-  position:fixed; left:50%; transform:translateX(-50%);
-  bottom:14px; z-index:50; display:none;
-  background:linear-gradient(135deg,#0b1220 0%, #111827 100%);
-  color:#fff;border-radius:999px;padding:.9rem 1.1rem;
-  font-weight:900; box-shadow:var(--shadow-lg);
-}
+/* ===== CTA sticky móvil (landing) ===== */
+.cta-sticky{position:fixed; left:50%; transform:translateX(-50%); bottom:14px; z-index:50; display:none; background:linear-gradient(135deg,#0b1220 0%, #111827 100%); color:#fff;border-radius:999px;padding:.9rem 1.1rem; font-weight:900; box-shadow:var(--shadow-lg)}
 .cta-sticky:focus-visible{outline:3px solid #fff; outline-offset:3px}
 @media (max-width:720px){ .cta-sticky{display:inline-block} }
 
-/* ===== Footer ===== */
-.ng-footer{ text-align:center; color:var(--muted); font-size:.95rem; padding:24px 16px 44px }
-.ng-footer .footer-links{font-size:.92rem;opacity:.95}
+/* ===== MALLA: grid y tarjetas ===== */
+.malla{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+@media (max-width:540px){ .malla{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));} }
 
-/* =============================================================================
-   MALLA (compatibilidad con tus dos variantes de app.js)
-   ========================================================================== */
-.malla,
-.grid-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
-
-/* Variante 1: .materia */
+/* Variante colorida .materia (tu actual) */
 .materia{
-  position:relative;border-radius:12px;padding:12px;color:#fff;
-  box-shadow:0 6px 18px rgba(0,0,0,.18);
+  position:relative;border-radius:14px;padding:14px;color:#fff;
+  box-shadow:0 8px 22px rgba(0,0,0,.16);
   transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
-  cursor:pointer;user-select:none;min-height:92px;
+  cursor:pointer;user-select:none;min-height:110px;
 }
-.materia:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.24)}
-.materia.aprobada{outline:3px solid rgba(34,197,94,.75)}
-.materia .estado{font-size:.82rem;opacity:.95;margin-top:6px}
+.materia:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(0,0,0,.20)}
+.materia .estado{font-size:.88rem;opacity:.95;margin-top:6px}
+.materia .codigo-credito{opacity:.95;margin:6px 0;font-weight:600}
+.materia h4{font-size:1.05rem;line-height:1.25;font-weight:900;margin-bottom:2px}
 
-/* Variante 2: .card.area */
+/* Estados (outline/insignias podrían agregarse si los usas) */
+.materia.aprobada{outline:3px solid rgba(34,197,94,.85)}
+.materia.cursando{outline:3px dashed rgba(59,130,246,.9)}
+
+/* Variante blanca con borde lateral (si la usas) */
 .card.area{
   color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;
   box-shadow:0 6px 18px rgba(0,0,0,.10);
   transition:transform .15s ease, box-shadow .15s ease;
 }
 .card.area:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.16)}
-.card .badge{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid var(--line);font-size:.8rem}
-.badge.ok{background:#10b9811a;border-color:#10b98140;color:#065f46}
-.badge.dis{background:#60a5fa1a;border-color:#60a5fa40;color:#1e3a8a}
-.badge.pen{background:#f59e0b1a;border-color:#f59e0b40;color:#7c2d12}
-.badge.cur{background:#a78bfa1a;border-color:#a78bfa40;color:#4c1d95}
-.badge.grade{background:#e0f2fe;border-color:#93c5fd;color:#0c4a6e}
-.badge.note{background:#fce7f3;border-color:#f9a8d4;color:#831843}
-.btn-chip{border:1px solid var(--line);background:var(--card);color:var(--text);padding:.35rem .55rem;border-radius:999px;cursor:pointer;font-size:.8rem}
-.btn-chip[disabled]{opacity:.5;cursor:not-allowed}
 
-/* Colores por área */
-.A  { background:#7c3aed; }
-.C  { background:#0ea5e9; }
-.MC { background:#16a34a; }
-.E  { background:#f97316; }
-.I  { background:#14b8a6; }
-.S  { background:#db2777; }
-.J  { background:#f59e0b; }
+/* Colores por área (igual que antes) */
+.A  { background:#7c3aed; }   /* Administración */
+.C  { background:#0ea5e9; }   /* Contabilidad */
+.MC { background:#16a34a; }   /* Métodos Cuantitativos */
+.E  { background:#f97316; }   /* Economía */
+.I  { background:#14b8a6; }   /* Integradoras */
+.S  { background:#db2777; }   /* Sociales */
+.J  { background:#f59e0b; }   /* Jurídica */
 
+/* Bordes laterales si usás .card.area + área */
 .area.A{border-left:6px solid #7c3aed}
 .area.C{border-left:6px solid #0ea5e9}
 .area.MC{border-left:6px solid #16a34a}
@@ -188,5 +163,3 @@ html[data-theme="dark"] .badge-icon{color:#e5e7eb; background:#0b1220}
 .area.I{border-left:6px solid #14b8a6}
 .area.S{border-left:6px solid #db2777}
 .area.J{border-left:6px solid #f59e0b}
-
-section h3{font-size:1.05rem;margin:0;color:var(--text)}
