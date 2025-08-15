@@ -15,53 +15,78 @@ html,body{height:100%}
   --g1:#8b5cf6; /* morado */
   --g2:#06b6d4; /* cyan */
 }
+/* Tema oscuro */
+html[data-theme="dark"]{
+  --bg:#0b1220;
+  --text:#e5e7eb;
+  --muted:#a1a1aa;
+  --line:#1f2937;
+  --card:#0f172a;
+
+  --shadow-lg:0 28px 70px rgba(0,0,0,.55);
+  --shadow-md:0 18px 44px rgba(0,0,0,.45);
+  --shadow-sm:0 10px 26px rgba(0,0,0,.35);
+
+  --g1:#6d28d9;
+  --g2:#0ea5e9;
+}
+
 body{font-family:ui-sans-serif,system-ui,"Segoe UI",Roboto,Ubuntu,Arial; background:var(--bg); color:var(--text); line-height:1.55}
 a{color:inherit;text-decoration:none}
 a.link{color:#0ea5e9}
 a.link:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
-
 .container{max-width:1100px;margin:0 auto;padding:0 16px}
 
-/* ===== HERO (dos columnas + ilustración) ===== */
+/* ===== Topbar ===== */
+.topbar{position:relative;z-index:5;background:transparent;padding:10px 0}
+.topbar-inner{display:flex;justify-content:space-between;align-items:center}
+.brand-mini{font-weight:800;opacity:.95}
+.theme-toggle{
+  font-size:1.05rem;line-height:1;cursor:pointer;border:none;border-radius:10px;
+  padding:.5rem .6rem;background:var(--card);color:var(--text);
+  box-shadow:var(--shadow-sm);
+}
+.theme-toggle:hover{filter:brightness(1.05)}
+.theme-toggle:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
+
+/* ===== HERO (sin ilustraciones) ===== */
 .ng-hero{
   background:linear-gradient(135deg,var(--g1) 0%, var(--g2) 100%);
   color:#fff;
-  padding:64px 0 58px;
+  padding:28px 0 46px;
   position:relative; overflow:hidden;
 }
-.hero-grid{display:grid; grid-template-columns: 1.1fr .9fr; gap:26px; align-items:center}
-.hero-left{max-width:680px}
-.brand{font-weight:800;letter-spacing:.3px;opacity:.98}
-.hero-title{font-size:clamp(2.2rem,5vw,3.2rem);font-weight:900;letter-spacing:.2px;margin:12px 0 10px}
+.hero-only{display:flex;flex-direction:column;align-items:flex-start}
+.hero-title{font-size:clamp(2.2rem,5vw,3.2rem);font-weight:900;letter-spacing:.2px;margin:8px 0 8px}
 .brand-accent{background:rgba(255,255,255,.18);padding:0 .42rem;border-radius:.55rem}
-.hero-sub{opacity:.98;max-width:640px;margin:0 0 18px 0}
-.cta-block{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.btn-pri{
-  display:inline-block;background:#0b1220;color:#fff;border:0;border-radius:14px;
-  padding:1rem 1.4rem;font-weight:900;font-size:1.05rem;
-  box-shadow:var(--shadow-lg);
-  transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
-}
-.btn-pri:hover{transform:translateY(-1px); box-shadow:0 28px 64px rgba(11,18,32,.32); filter:brightness(1.05)}
-.btn-pri:focus-visible{outline:3px solid #fff; outline-offset:3px}
-.btn-pulse{animation:pulse 1.8s ease-in-out infinite}
-.cta-sub{font-size:.95rem;opacity:.95}
-@keyframes pulse{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-1px) scale(1.02)}}
+.hero-sub{opacity:.98;max-width:720px;margin:0 0 16px 0}
 
-.hero-illus{min-height:220px}
+.hero-cta{display:flex;justify-content:center;align-items:center;margin-top:6px}
+.btn-cta{
+  display:inline-block;
+  background:linear-gradient(135deg,#0b1220 0%, #111827 100%);
+  color:#fff;border:0;border-radius:14px;
+  padding:1rem 1.6rem;font-weight:900;font-size:1.08rem;
+  box-shadow:var(--shadow-lg);
+  transition:transform .08s ease, box-shadow .14s ease, filter .14s ease, background .18s ease;
+}
+.btn-cta:hover{
+  transform:translateY(-2px);
+  background:linear-gradient(135deg,#1f2937 0%, #0b1220 100%);
+  box-shadow:0 30px 72px rgba(0,0,0,.35);
+  filter:brightness(1.06);
+}
+.btn-cta:active{transform:translateY(0); filter:brightness(.98)}
+.btn-cta:focus-visible{outline:3px solid #fff; outline-offset:3px}
+
 .hero-shadow{
-  position:absolute;left:0;right:0;bottom:-24px;height:48px;
-  background:radial-gradient(120% 60px at 50% 0, rgba(0,0,0,.16), transparent 70%);
+  position:absolute;left:0;right:0;bottom:-20px;height:40px;
+  background:radial-gradient(120% 60px at 50% 0, rgba(0,0,0,.18), transparent 70%);
   filter:blur(10px); pointer-events:none;
 }
-@media (max-width:960px){
-  .hero-grid{grid-template-columns:1fr; text-align:left}
-  .hero-left{margin:0 auto}
-  .hero-illus{display:none}
-}
 
-/* ===== BENEFICIOS (3x2, reordenados) ===== */
-.benefits-wrap{margin-top:8px;margin-bottom:18px}
+/* ===== BENEFICIOS ===== */
+.benefits-wrap{margin-top:22px;margin-bottom:18px}
 .benefits-grid{
   display:grid; gap:16px;
   grid-template-columns:repeat(3,minmax(0,1fr));
@@ -72,22 +97,23 @@ a.link:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
 .card{
   background:var(--card); border:1px solid var(--line); border-radius:18px;
   padding:18px; box-shadow:var(--shadow-md);
-  transition:transform .14s ease, box-shadow .14s ease;
+  transition:transform .14s ease, box-shadow .14s ease, filter .2s ease;
 }
-.card:focus-within{outline:3px solid #1118271a; outline-offset:3px}
 .card:hover{transform:translateY(-2px); box-shadow:var(--shadow-lg)}
+.card.benefit{display:flex;flex-direction:column;gap:10px;min-height:140px}
+.card.primary{box-shadow:var(--shadow-lg)}
+.card.secondary{box-shadow:var(--shadow-sm)}
+.card h3{font-size:1.12rem;font-weight:900}
+.card p{color:var(--muted)}
 
-.benefit{display:flex;flex-direction:column;gap:10px;min-height:140px}
-.benefit.primary{box-shadow:var(--shadow-lg)}
-.benefit.secondary{box-shadow:var(--shadow-sm)}
-.benefit h3{font-size:1.12rem;font-weight:900}
-.benefit p{color:var(--muted)}
 .badge-icon{
   width:44px;height:44px;border-radius:14px;display:grid;place-items:center;
   color:#111827;background:#fff; box-shadow:0 6px 16px rgba(0,0,0,.06);
   border:3px solid color-mix(in oklab, var(--ring, #8b5cf6), transparent 60%);
 }
+html[data-theme="dark"] .badge-icon{color:#e5e7eb; background:#0b1220}
 
+/* Apariciones */
 @media (prefers-reduced-motion:no-preference){
   .appear{animation:fadeUp .45s ease both}
   .pop{animation:pop .28s ease both}
@@ -95,11 +121,12 @@ a.link:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
   @keyframes pop{from{transform:scale(.985);opacity:.92}to{transform:scale(1);opacity:1}}
 }
 
-/* ===== CTA sticky en mobile ===== */
+/* ===== CTA sticky móvil ===== */
 .cta-sticky{
   position:fixed; left:50%; transform:translateX(-50%);
   bottom:14px; z-index:50; display:none;
-  background:#0b1220;color:#fff;border-radius:999px;padding:.9rem 1.1rem;
+  background:linear-gradient(135deg,#0b1220 0%, #111827 100%);
+  color:#fff;border-radius:999px;padding:.9rem 1.1rem;
   font-weight:900; box-shadow:var(--shadow-lg);
 }
 .cta-sticky:focus-visible{outline:3px solid #fff; outline-offset:3px}
@@ -110,33 +137,29 @@ a.link:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
 .ng-footer .footer-links{font-size:.92rem;opacity:.95}
 
 /* =============================================================================
-   SECCIÓN MALLA (adentro) — compatibilidad con dos variantes de app.js:
-   - Variante .materia (tarjeta coloreada completa)
-   - Variante .card.area (tarjeta blanca con borde lateral de color)
+   MALLA (compatibilidad con tus dos variantes de app.js)
    ========================================================================== */
-
-/* Grid de malla */
 .malla,
 .grid-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
 
-/* -------- Variante 1: .materia -------- */
+/* Variante 1: .materia */
 .materia{
   position:relative;border-radius:12px;padding:12px;color:#fff;
-  box-shadow:0 6px 18px rgba(0,0,0,.08);
+  box-shadow:0 6px 18px rgba(0,0,0,.18);
   transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
   cursor:pointer;user-select:none;min-height:92px;
 }
-.materia:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.12)}
+.materia:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.24)}
 .materia.aprobada{outline:3px solid rgba(34,197,94,.75)}
 .materia .estado{font-size:.82rem;opacity:.95;margin-top:6px}
 
-/* -------- Variante 2: .card.area -------- */
+/* Variante 2: .card.area */
 .card.area{
-  color:var(--text);background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;
-  box-shadow:0 6px 18px rgba(0,0,0,.04);
+  color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;
+  box-shadow:0 6px 18px rgba(0,0,0,.10);
   transition:transform .15s ease, box-shadow .15s ease;
 }
-.card.area:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.08)}
+.card.area:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.16)}
 .card .badge{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid var(--line);font-size:.8rem}
 .badge.ok{background:#10b9811a;border-color:#10b98140;color:#065f46}
 .badge.dis{background:#60a5fa1a;border-color:#60a5fa40;color:#1e3a8a}
@@ -144,10 +167,10 @@ a.link:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
 .badge.cur{background:#a78bfa1a;border-color:#a78bfa40;color:#4c1d95}
 .badge.grade{background:#e0f2fe;border-color:#93c5fd;color:#0c4a6e}
 .badge.note{background:#fce7f3;border-color:#f9a8d4;color:#831843}
-.btn-chip{border:1px solid var(--line);background:#fff;color:var(--text);padding:.35rem .55rem;border-radius:999px;cursor:pointer;font-size:.8rem}
+.btn-chip{border:1px solid var(--line);background:var(--card);color:var(--text);padding:.35rem .55rem;border-radius:999px;cursor:pointer;font-size:.8rem}
 .btn-chip[disabled]{opacity:.5;cursor:not-allowed}
 
-/* -------- Colores por área (para ambas variantes) -------- */
+/* Colores por área */
 .A  { background:#7c3aed; }   /* Administración */
 .C  { background:#0ea5e9; }   /* Contabilidad */
 .MC { background:#16a34a; }   /* Métodos Cuantitativos */
@@ -156,7 +179,6 @@ a.link:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
 .S  { background:#db2777; }   /* Sociales */
 .J  { background:#f59e0b; }   /* Jurídica */
 
-/* Bordes laterales si usás .card.area + área */
 .area.A{border-left:6px solid #7c3aed}
 .area.C{border-left:6px solid #0ea5e9}
 .area.MC{border-left:6px solid #16a34a}
@@ -165,5 +187,4 @@ a.link:focus-visible{outline:3px solid #0ea5e9;outline-offset:3px}
 .area.S{border-left:6px solid #db2777}
 .area.J{border-left:6px solid #f59e0b}
 
-/* Título de grupos (año/semestre) en la malla */
-section h3{font-size:1.15rem;margin:18px 0 10px;color:#111827}
+section h3{font-size:1.15rem;margin:18px 0 10px;color:var(--text)}
