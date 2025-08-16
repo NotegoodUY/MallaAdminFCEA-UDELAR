@@ -92,33 +92,45 @@
 
   const emEstado = (st)=> st==="aprobada"?"✅":st==="cursando"?"📘":st==="disponible"?"🟢":"🔒";
 
+  /** Devuelve el plan efectivo aplicando la configuración del 1º semestre.
+   *  Se usa para renderizar y para TODOS los contadores (para no duplicar créditos).
+   */
+  function getEffectivePlan() {
+    const out = [];
+    for (const m of state.data.materias) {
+      // Filtrado por configuración solo afecta 1er semestre
+      if (m.anio === 1 && m.semestre === 1) {
+        // Economía: mostrar solo la elegida si hay elección
+        if ((m.codigo === "E10" || m.codigo === "E11") && state.cfg.eco) {
+          if (m.codigo !== state.cfg.eco) continue;
+        }
+        // Cálculo
+        if (state.cfg.calc === "MC10") {
+          // ocultar 114A/128A
+          if (m.codigo === "114A" || m.codigo === "128A") continue;
+        } else if (state.cfg.calc === "114A+128A") {
+          // ocultar MC10
+          if (m.codigo === "MC10") continue;
+        }
+      }
+      out.push(m);
+    }
+    return out;
+  }
+
   // ====== Render principal (Año → Semestres) ======
   function render(){
     if(!container) return;
     container.innerHTML="";
 
-    // Filtros (y aplicar configuración del 1º semestre)
+    // 1) Tomamos el plan efectivo según configuración
+    const base = getEffectivePlan();
+
+    // 2) Aplicamos búsqueda/filtros y la selección de opcionales
     const q = state.filtros.q.toLowerCase().trim();
-    const filtered = state.data.materias.filter(m=>{
+    const filtered = base.filter(m=>{
       // ocultar OP si no está elegida
       if(m.tipo==="OP" && !state.opcionalesElegidas.has(m.codigo)) return false;
-
-      // APLICAR CONFIG DE 1º SEMESTRE (eco / cálculo)
-      if (m.anio === 1 && m.semestre === 1) {
-        // Economía: mostrar solo la elegida si hay elección
-        if ((m.codigo === "E10" || m.codigo === "E11") && state.cfg.eco) {
-          if (m.codigo !== state.cfg.eco) return false;
-        }
-        // Cálculo:
-        if (state.cfg.calc === "MC10") {
-          // Si eligió MC10: ocultar 114A y 128A
-          if (m.codigo === "114A" || m.codigo === "128A") return false;
-        } else if (state.cfg.calc === "114A+128A") {
-          // Si eligió 114A+128A: ocultar MC10
-          if (m.codigo === "MC10") return false;
-        }
-        // Si no hay cfg, se muestran todas (comportamiento por defecto)
-      }
 
       // Filtros de cabecera
       if(state.filtros.estado){
@@ -136,7 +148,22 @@
       return true;
     });
 
-    // Agrupar por año → semestres
+    // 3) Counters sobre el plan efectivo (SIN duplicar MC10 vs 114A/128A)
+    $("#countVisibles").textContent = filtered.length;
+    $("#countAprobadas").textContent = base.filter(x=>hasAprobada(x.codigo)).length;
+
+    const credTot = base.reduce((s,x)=>s+(+x.creditos||0),0);
+    const credOk  = base
+      .filter(x=>hasAprobada(x.codigo))
+      .reduce((s,x)=>s+(+x.creditos||0),0);
+
+    $("#countCreditos").textContent = credOk;
+
+    const pct = credTot? Math.round(credOk*100/credTot) : 0;
+    $("#progressFill").style.width = pct+"%";
+    $("#progressLabel").textContent = pct+"%";
+
+    // 4) Agrupar por año → semestres y render
     const map = new Map(); // year -> {1:[],2:[],...}
     for(const m of filtered){
       const y = m.anio||0, s = m.semestre||0;
@@ -146,20 +173,6 @@
     }
     const years = [...map.keys()].sort((a,b)=>a-b);
 
-    // Counters (sobre todo el plan)
-    $("#countVisibles").textContent = filtered.length;
-    $("#countAprobadas").textContent = state.data.materias.filter(x=>hasAprobada(x.codigo)).length;
-    const credTot = state.data.materias.reduce((s,x)=>s+(+x.creditos||0),0);
-    const credOk  = state.data.materias
-      .filter(x=>hasAprobada(x.codigo))
-      .reduce((s,x)=>s+(+x.creditos||0),0);
-    $("#countCreditos").textContent = credOk;
-
-    const pct = credTot? Math.round(credOk*100/credTot) : 0;
-    $("#progressFill").style.width = pct+"%";
-    $("#progressLabel").textContent = pct+"%";
-
-    // Render por año
     for(const year of years){
       const yearCard = document.createElement("section");
       yearCard.className="year-card";
