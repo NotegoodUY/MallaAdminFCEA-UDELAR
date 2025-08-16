@@ -50,9 +50,41 @@
     document.body.appendChild(el); setTimeout(()=>el.remove(), ms);
   };
 
-  const canTake = (m) => (m.previas||[]).every(c=>state.aprobadas.has(String(c)));
+  /** Equivalencia de Cálculo:
+   *  - Si cfg.calc === "114A+128A" y está aprobada 128A, se considera equivalente a MC10.
+   *  - Si cfg.calc === "MC10" y está aprobada MC10, satisface previas que pidan 114A o 128A.
+   */
+  function isPrevSatisfied(code){
+    // Cálculo I como previa
+    if (code === "MC10") {
+      if (state.aprobadas.has("MC10")) return true;
+      if (state.cfg.calc === "114A+128A" && state.aprobadas.has("128A")) return true;
+      return false;
+    }
+    // Si piden 114A o 128A, pero la config es MC10 y MC10 está aprobada, cuenta como satisfecho
+    if (code === "114A" || code === "128A") {
+      if (state.aprobadas.has(code)) return true;
+      if (state.cfg.calc === "MC10" && state.aprobadas.has("MC10")) return true;
+      return false;
+    }
+    // Cualquier otra previa: normal
+    return state.aprobadas.has(String(code));
+  }
+
+  const canTake = (m) => (m.previas||[]).every(isPrevSatisfied);
+
+  function hasAprobada(codigo){
+    // Para mostrar estado en códigos equivalentes
+    if (codigo === "MC10") {
+      if (state.aprobadas.has("MC10")) return true;
+      if (state.cfg.calc === "114A+128A" && state.aprobadas.has("128A")) return true;
+      return false;
+    }
+    return state.aprobadas.has(codigo);
+  }
+
   const estadoDe = (codigo)=>{
-    if(state.aprobadas.has(codigo)) return "aprobada";
+    if(hasAprobada(codigo)) return "aprobada";
     if(state.cursando.has(codigo))  return "cursando";
     const m=state.byCodigo.get(codigo);
     return canTake(m) ? "disponible" : "bloqueada";
@@ -65,13 +97,30 @@
     if(!container) return;
     container.innerHTML="";
 
-    // Filtros
+    // Filtros (y aplicar configuración del 1º semestre)
     const q = state.filtros.q.toLowerCase().trim();
     const filtered = state.data.materias.filter(m=>{
       // ocultar OP si no está elegida
       if(m.tipo==="OP" && !state.opcionalesElegidas.has(m.codigo)) return false;
 
-      // filtros header
+      // APLICAR CONFIG DE 1º SEMESTRE (eco / cálculo)
+      if (m.anio === 1 && m.semestre === 1) {
+        // Economía: mostrar solo la elegida si hay elección
+        if ((m.codigo === "E10" || m.codigo === "E11") && state.cfg.eco) {
+          if (m.codigo !== state.cfg.eco) return false;
+        }
+        // Cálculo:
+        if (state.cfg.calc === "MC10") {
+          // Si eligió MC10: ocultar 114A y 128A
+          if (m.codigo === "114A" || m.codigo === "128A") return false;
+        } else if (state.cfg.calc === "114A+128A") {
+          // Si eligió 114A+128A: ocultar MC10
+          if (m.codigo === "MC10") return false;
+        }
+        // Si no hay cfg, se muestran todas (comportamiento por defecto)
+      }
+
+      // Filtros de cabecera
       if(state.filtros.estado){
         if(estadoDe(m.codigo)!==state.filtros.estado) return false;
       }
@@ -96,11 +145,14 @@
       (obj[s] ||= []).push(m);
     }
     const years = [...map.keys()].sort((a,b)=>a-b);
-    // counters
+
+    // Counters (sobre todo el plan)
     $("#countVisibles").textContent = filtered.length;
-    $("#countAprobadas").textContent = state.data.materias.filter(x=>state.aprobadas.has(x.codigo)).length;
+    $("#countAprobadas").textContent = state.data.materias.filter(x=>hasAprobada(x.codigo)).length;
     const credTot = state.data.materias.reduce((s,x)=>s+(+x.creditos||0),0);
-    const credOk  = state.data.materias.filter(x=>state.aprobadas.has(x.codigo)).reduce((s,x)=>s+(+x.creditos||0),0);
+    const credOk  = state.data.materias
+      .filter(x=>hasAprobada(x.codigo))
+      .reduce((s,x)=>s+(+x.creditos||0),0);
     $("#countCreditos").textContent = credOk;
 
     const pct = credTot? Math.round(credOk*100/credTot) : 0;
@@ -149,7 +201,7 @@
           el.addEventListener("click", ()=>{
             const curr = estadoDe(m.codigo);
             if(curr==="bloqueada"){
-              const faltan = (m.previas||[]).filter(c=>!state.aprobadas.has(c));
+              const faltan = (m.previas||[]).filter(c=>!isPrevSatisfied(c));
               toast(`🔒 Aún bloqueada. Te falta: ${faltan.join(", ")||"previas"}`);
               return;
             }
@@ -219,8 +271,8 @@
   function openConfig(){
     const dlg = $("#modalConfig");
     // set radios
-    dlg.querySelector(`input[name="eco"][value="${state.cfg.eco}"]`)?.setAttribute("checked","checked");
-    dlg.querySelector(`input[name="calc"][value="${state.cfg.calc}"]`)?.setAttribute("checked","checked");
+    dlg.querySelectorAll('input[name="eco"]').forEach(r=>r.checked = (r.value===state.cfg.eco));
+    dlg.querySelectorAll('input[name="calc"]').forEach(r=>r.checked = (r.value===state.cfg.calc));
     dlg.showModal();
 
     $("#cfgCancel").onclick=()=>dlg.close();
@@ -235,7 +287,7 @@
 
       // Regla 2: Cálculo simple vs doble dictado
       if(calc==="MC10"){
-        // Si elige MC10, quitar A/B y considerar MC10 para previas
+        // Si elige MC10, quitar A/B
         state.aprobadas.delete("114A"); state.aprobadas.delete("128A");
         state.cursando.delete("114A");  state.cursando.delete("128A");
       }else if(calc==="114A+128A"){
