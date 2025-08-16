@@ -111,6 +111,7 @@
       </div>
 
       <div class="control control-actions">
+        <button id="btnConfig" class="btn">⚙️ Configurar 1º semestre</button>
         <button id="btnOpcionales" class="btn">➕ Agregar opcionales</button>
         <button id="btnClearFilters" class="btn ghost">Limpiar filtros</button>
         <button id="btnReset" class="btn danger">Reiniciar progreso</button>
@@ -144,10 +145,64 @@
     <div class="op-backdrop"></div>
   </div>
 
+  <!-- Modal de configuración 1º semestre -->
+  <div id="cfgModal" class="op-modal" hidden>
+    <div class="op-dialog card">
+      <div class="op-head">
+        <h3>Configurar 1º semestre</h3>
+        <button id="cfgClose" class="btn ghost small">✖</button>
+      </div>
+      <div class="op-body">
+
+        <!-- Regla 1: Micro vs Interacciones -->
+        <div class="card" style="padding:12px">
+          <h4 style="margin-bottom:6px">Intro Micro vs Interacciones</h4>
+          <p class="muted" style="margin-bottom:8px">Puedes cursar <b>E10</b> o <b>E11</b>, pero no ambas.</p>
+          <label class="op-row">
+            <input type="radio" name="microChoice" value="auto" checked />
+            <span class="op-name">Dejar ambas visibles (se bloquearán entre sí al aprobar una)</span>
+          </label>
+          <label class="op-row">
+            <input type="radio" name="microChoice" value="E10" />
+            <span class="op-name">Solo E10 — Introducción a la Microeconomía</span>
+          </label>
+          <label class="op-row">
+            <input type="radio" name="microChoice" value="E11" />
+            <span class="op-name">Solo E11 — Análisis de Interacciones Económicas</span>
+          </label>
+        </div>
+
+        <!-- Regla 2: Cálculo I -->
+        <div class="card" style="padding:12px;margin-top:10px">
+          <h4 style="margin-bottom:6px">Cálculo I</h4>
+          <p class="muted" style="margin-bottom:8px">Puedes cursar <b>MC10</b> o dividirlo en <b>114A</b> + <b>128A</b>. Si apruebas 114A y 128A, se considera cumplida la previa de MC10.</p>
+          <label class="op-row">
+            <input type="radio" name="calculoMode" value="auto" checked />
+            <span class="op-name">Mostrar ambas opciones (se bloquearán entre sí según lo que elijas)</span>
+          </label>
+          <label class="op-row">
+            <input type="radio" name="calculoMode" value="MC10" />
+            <span class="op-name">Solo MC10 — Cálculo I</span>
+          </label>
+          <label class="op-row">
+            <input type="radio" name="calculoMode" value="PARTES" />
+            <span class="op-name">Solo por partes — 114A (I/A) + 128A (I/B)</span>
+          </label>
+        </div>
+
+      </div>
+      <div class="op-foot">
+        <button id="cfgResetChoice" class="btn ghost">Restablecer</button>
+        <button id="cfgSave" class="btn">Guardar configuración</button>
+      </div>
+    </div>
+    <div class="op-backdrop"></div>
+  </div>
+
   <!-- Footer mini -->
   <footer class="ng-footer">
     <div class="container footer-inner">
-      <p class="muted">Tip: selecciona tus opcionales primero. Cualquier duda, ¡me escribes!</p>
+      <p class="muted">Tip: configura tu 1º semestre y selecciona opcionales antes de planificar.</p>
     </div>
   </footer>
 
