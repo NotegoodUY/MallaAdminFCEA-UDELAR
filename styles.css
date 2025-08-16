@@ -200,3 +200,59 @@ body{
   .ng-actions{flex-direction:column;align-items:flex-start}
   .ng-progress__bar{width:180px}
 }
+
+/* ======= Landing (home) ======= */
+.landing-hero{
+  background:linear-gradient(135deg,var(--grad-a),var(--grad-b));
+  color:#fff; text-align:center;
+  padding:72px 0 64px;
+}
+.landing-title{
+  margin:0 0 8px 0;
+  font-size: clamp(28px, 4.2vw, 46px);
+  font-weight: 900;
+  letter-spacing:.4px;
+}
+.brand-accent{
+  background: rgba(255,255,255,.2);
+  padding: 0 .35em;
+  border-radius: .45em;
+}
+.landing-sub{
+  margin:0 auto 18px auto;
+  max-width: 720px;
+  font-size: clamp(15px, 1.9vw, 18px);
+  opacity:.95;
+}
+.landing-cta{margin-top:12px}
+.ng-btn--lg{padding:14px 18px; font-size:1.05rem}
+
+/* Feats */
+.landing-feats{
+  display:grid; gap:14px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  padding: 24px 0 34px;
+}
+.feat{
+  background: var(--card);
+  border:1px solid var(--ring);
+  border-radius:14px;
+  padding:14px;
+  box-shadow: var(--shadow);
+}
+.feat__icon{font-size:22px}
+.feat__title{margin:6px 0 4px 0; font-weight:900}
+.feat__desc{margin:0; color:var(--text-muted)}
+
+/* Footer */
+.landing-footer{
+  padding:28px 0 36px;
+  text-align:center;
+}
+.foot-slogan{
+  margin:0 0 8px 0; font-weight:800;
+}
+.foot-links .link{
+  color:inherit; opacity:.9; text-decoration:underline;
+}
+.foot-links .link:hover{opacity:1}
