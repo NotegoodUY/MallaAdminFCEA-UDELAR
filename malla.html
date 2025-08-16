@@ -8,41 +8,38 @@
 </head>
 <body>
 
-  <!-- HEADER / TOP-BAR estilo Notegood -->
-  <header class="ng-topbar">
-    <div class="ng-topbar__inner container">
-      <a class="brand-link" href="index.html" aria-label="Ir al landing">Notegood.uy ✨</a>
-
-      <div class="top-actions">
-        <button id="themeToggle" class="btn-ghost" aria-label="Cambiar tema">🌙</button>
-        <a class="btn-ghost exit" href="index.html" aria-label="Volver al landing">🚪</a>
-      </div>
+ <!-- HEADER / TOPBAR NG -->
+<header class="ng-header">
+  <div class="ng-header__top">
+    <a href="index.html" class="brand-mini">Notegood.uy ✨</a>
+    <div class="ng-header__actions">
+      <button id="themeToggle" class="icon-btn" title="Cambiar tema">🌙</button>
+      <a href="index.html" class="icon-btn" title="Volver al inicio">🚪</a>
     </div>
+  </div>
 
-    <div class="ng-metrics container">
-      <div class="legend">
-        <span class="dot ok"></span> Aprobada
-        <span class="dot cur"></span> Cursando
-        <span class="dot free"></span> Disponible
-        <span class="dot lock"></span> Bloqueada
-        <span class="pill pill--ob">OB</span> Obligatoria
-        <span class="pill pill--op">OP</span> Opcional
-      </div>
+  <div class="ng-header__progress">
+    <div class="progress"><div id="progressFill" class="progress__fill"></div></div>
+    <div class="progress__percent" id="progressLabel">0%</div>
+  </div>
 
-      <div class="counters">
-        <strong id="countAprobadas">0</strong> aprobadas
-        <span class="sep"></span>
-        <strong id="countVisibles">0</strong> totales visibles
-        <span class="sep"></span>
-        <strong id="countCreditos">0</strong> créditos aprobados
-      </div>
+  <div class="ng-header__stats">
+    <span><strong id="countAprobadas">0</strong> aprobadas</span>
+    <span class="dot">·</span>
+    <span><strong id="countVisibles">0</strong> totales visibles</span>
+    <span class="dot">·</span>
+    <span><strong id="countCreditos">0</strong> créditos aprobados</span>
+  </div>
 
-      <div class="progress">
-        <div id="progressFill" class="progress__fill"></div>
-      </div>
-      <div id="progressLabel" class="progress__label">0%</div>
-    </div>
-  </header>
+  <div class="ng-header__legend">
+    <span>✅ Aprobada</span>
+    <span>📘 Cursando</span>
+    <span>🟢 Disponible</span>
+    <span>🔒 Bloqueada</span>
+    <span class="pill">OB</span> <span>Obligatoria</span>
+    <span class="pill pill--op">OP</span> <span>Opcional</span>
+  </div>
+</header>
 
   <!-- CONTROLES / FILTROS -->
   <section class="toolbar container">
