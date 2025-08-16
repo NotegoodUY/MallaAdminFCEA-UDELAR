@@ -3,99 +3,113 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Notegood · Malla Interactiva — Administración</title>
+  <title>Notegood · Malla Interactiva – Administración</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <!-- Topbar minimal -->
-  <header class="ng-topbar">
-    <div class="ng-container ng-topbar__inner">
-      <div class="ng-topbar__brand">Notegood.uy ✨</div>
-      <div class="ng-topbar__actions">
-        <button id="themeToggle" class="ng-btn ng-btn--ghost" aria-label="Cambiar tema">🌙</button>
-      </div>
+  <!-- Topbar simple -->
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <a href="index.html" class="brand-mini">Notegood.uy ✨</a>
+      <button id="themeToggle" class="theme-toggle" aria-label="Cambiar tema (claro/oscuro)">🌙</button>
     </div>
-  </header>
+  </div>
 
   <!-- HERO -->
-  <section class="landing-hero">
-    <div class="ng-container">
-      <h1 class="landing-title">
+  <header class="ng-hero">
+    <div class="container hero-only">
+      <h1 class="hero-title">
         Tu <span class="brand-accent">Malla Interactiva</span> de Administración
       </h1>
-      <p class="landing-sub">
+      <p class="hero-sub">
         Convierte el caos de la carrera en un plan claro: avanza, desbloquea y celebra cada logro.
       </p>
-      <div class="landing-cta">
-        <a class="ng-btn ng-btn--primary ng-btn--lg" href="malla.html" aria-label="Abrir malla">🚀 Organizar mi carrera</a>
+      <div class="hero-cta center">
+        <a href="malla.html" class="btn-cta" aria-label="Abrir mi malla y organizar mi carrera">🚀 Organizar mi carrera</a>
       </div>
+    </div>
+    <div class="hero-shadow"></div>
+  </header>
+
+  <!-- BENEFICIOS -->
+  <section class="container benefits-wrap">
+    <div class="benefits-grid appear">
+
+      <article class="card benefit primary pop" style="--ring:#22c55e">
+        <div class="benefit-header">
+          <div class="badge-icon">✅</div>
+          <h3>Guarda tu avance</h3>
+        </div>
+        <p>Tu progreso se guarda en este dispositivo. No se pierde.</p>
+      </article>
+
+      <article class="card benefit primary pop" style="--ring:#f59e0b">
+        <div class="benefit-header">
+          <div class="badge-icon">🔓</div>
+          <h3>Correlativas automáticas</h3>
+        </div>
+        <p>Se desbloquean según tus aprobadas. Sin cálculos raros.</p>
+      </article>
+
+      <article class="card benefit primary pop" style="--ring:#8b5cf6">
+        <div class="benefit-header">
+          <div class="badge-icon">📝</div>
+          <h3>Notas y calificaciones</h3>
+        </div>
+        <p>Guarda recordatorios y registra tu nota por materia.</p>
+      </article>
+
+      <article class="card benefit secondary pop" style="--ring:#0ea5e9">
+        <div class="benefit-header">
+          <div class="badge-icon">📊</div>
+          <h3>Motivación visual</h3>
+        </div>
+        <p>Indicadores claros y feedback positivo estilo Notegood.</p>
+      </article>
+
+      <article class="card benefit secondary pop" style="--ring:#111827">
+        <div class="benefit-header">
+          <div class="badge-icon">🔒</div>
+          <h3>Privado y simple</h3>
+        </div>
+        <p>Sin cuentas ni datos: todo queda en tu navegador.</p>
+      </article>
+
+      <article class="card benefit secondary pop" style="--ring:#ec4899">
+        <div class="benefit-header">
+          <div class="badge-icon">🎉</div>
+          <h3>Celebración final</h3>
+        </div>
+        <p>Confeti al completar la carrera. Cada logro cuenta.</p>
+      </article>
+
     </div>
   </section>
 
-  <!-- BENEFICIOS -->
-  <section class="ng-container landing-feats">
-    <article class="feat">
-      <div class="feat__icon">📈</div>
-      <h3 class="feat__title">Progreso</h3>
-      <p class="feat__desc">Visualiza tu avance y mantén tu motivación.</p>
-    </article>
-
-    <article class="feat">
-      <div class="feat__icon">🧰</div>
-      <h3 class="feat__title">Filtros</h3>
-      <p class="feat__desc">Busca por año, semestre u otras opciones.</p>
-    </article>
-
-    <article class="feat">
-      <div class="feat__icon">✨</div>
-      <h3 class="feat__title">Opcionales</h3>
-      <p class="feat__desc">Elige qué materias opcionales incluir.</p>
-    </article>
-
-    <article class="feat">
-      <div class="feat__icon">🎯</div>
-      <h3 class="feat__title">Leyenda clara</h3>
-      <p class="feat__desc">Estados con emojis para más claridad.</p>
-    </article>
-
-    <article class="feat">
-      <div class="feat__icon">⟳</div>
-      <h3 class="feat__title">Reinicio fácil</h3>
-      <p class="feat__desc">Borra el progreso cuando quieras.</p>
-    </article>
-  </section>
+  <!-- CTA sticky móvil -->
+  <a href="malla.html" class="cta-sticky" aria-label="Abrir malla interactiva">🚀 Organizar mi carrera</a>
 
   <!-- FOOTER -->
-  <footer class="landing-footer">
-    <div class="ng-container">
-      <p class="foot-slogan">📌 Aquí no solo cuentas materias: cuentas logros. Y yo estoy para celebrarlos contigo.</p>
-      <p class="foot-links">
-        Hecho con 💜 por Notegood.uy — 
-        <a href="#" class="link">Instagram</a> · 
-        <a href="#" class="link">GitHub</a> · 
+  <footer class="ng-footer">
+    <div class="container footer-inner">
+      <p>📌 Aquí no solo cuentas materias: cuentas logros. Y yo estoy para celebrarlos contigo.</p>
+      <p class="footer-links">
+        Hecho con 💜 por Notegood.uy — <a href="#" class="link">Instagram</a> ·
+        <a href="#" class="link">GitHub</a> ·
         <a href="mailto:hola@notegood.uy" class="link">Contacto</a>
       </p>
     </div>
   </footer>
 
   <script>
-    // Toggle tema, igual que en la malla
     (function(){
-      const root = document.documentElement;
-      const key = "theme";
-      const btn = document.getElementById("themeToggle");
-      const apply = (t) => {
-        root.setAttribute("data-theme", t);
-        btn.textContent = t === "dark" ? "☀️" : "🌙";
-        localStorage.setItem(key, t);
-      };
-      const saved = localStorage.getItem(key);
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      apply(saved || (prefersDark ? "dark" : "light"));
-      btn.addEventListener("click", () => {
-        apply(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
-      });
+      const root=document.documentElement, key="theme", btn=document.getElementById("themeToggle");
+      const apply=t=>{root.setAttribute("data-theme",t);btn.textContent=t==="dark"?"☀️":"🌙";localStorage.setItem(key,t);};
+      const saved=localStorage.getItem(key);
+      const prefers=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
+      apply(saved||(prefers?"dark":"light"));
+      btn.addEventListener("click",()=>apply(root.getAttribute("data-theme")==="dark"?"light":"dark"));
     })();
   </script>
 </body>
