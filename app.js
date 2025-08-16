@@ -1,4 +1,4 @@
-/* Notegood · Malla Administración — render “Año → Semestres”, colores pastel y estética NG */
+/* Notegood · Malla Administración — año→semestres, filtros, tooltips y colores pastel */
 
 (function () {
   "use strict";
@@ -10,6 +10,7 @@
 
   const $ = (s) => document.querySelector(s);
   const container = $("#malla-container");
+  const richTip = $("#richTooltip");
 
   // ====== Estado ======
   const state = {
@@ -17,8 +18,8 @@
     byCodigo: new Map(),
     aprobadas: new Set(),
     cursando: new Set(),
-    opcionalesElegidas: new Set(), // para mostrar solo OP elegidas
-    cfg: { eco: "", calc: "" },    // configuración 1º semestre
+    opcionalesElegidas: new Set(), // sólo mostramos OP elegidas
+    cfg: { eco:"", calc:"" },      // configuración 1º semestre
     filtros: { q:"", estado:"", anio:"", sem:"", tipo:"", area:"" }
   };
 
@@ -32,7 +33,7 @@
     localStorage.setItem(LS_CFG, JSON.stringify(state.cfg));
   };
   const load = () => {
-    try {
+    try{
       const s = JSON.parse(localStorage.getItem(LS_STATE)||"{}");
       state.aprobadas = new Set(s.aprobadas||[]);
       state.cursando  = new Set(s.cursando||[]);
@@ -42,100 +43,60 @@
     }catch{}
   };
 
-  // ====== Utilidades ======
-  const toast = (msg, ms=1600)=>{
+  // ====== Utils ======
+  const toast = (msg,ms=1600)=>{
     const el=document.createElement("div");
     el.textContent=msg;
-    el.style.cssText="position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#111827;color:#fff;padding:.6rem .8rem;border-radius:12px;border:1px solid rgba(255,255,255,.15);box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:9999;font-weight:700";
-    document.body.appendChild(el); setTimeout(()=>el.remove(), ms);
+    el.style.cssText="position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#111827;color:#fff;padding:.6rem .8rem;border-radius:12px;border:1px solid rgba(255,255,255,.15);box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:9999;font-weight:800";
+    document.body.appendChild(el); setTimeout(()=>el.remove(),ms);
   };
 
-  /** Equivalencia de Cálculo:
-   *  - Si cfg.calc === "114A+128A" y está aprobada 128A, se considera equivalente a MC10.
-   *  - Si cfg.calc === "MC10" y está aprobada MC10, satisface previas que pidan 114A o 128A.
-   */
-  function isPrevSatisfied(code){
-    // Cálculo I como previa
-    if (code === "MC10") {
-      if (state.aprobadas.has("MC10")) return true;
-      if (state.cfg.calc === "114A+128A" && state.aprobadas.has("128A")) return true;
-      return false;
-    }
-    // Si piden 114A o 128A, pero la config es MC10 y MC10 está aprobada, cuenta como satisfecho
-    if (code === "114A" || code === "128A") {
-      if (state.aprobadas.has(code)) return true;
-      if (state.cfg.calc === "MC10" && state.aprobadas.has("MC10")) return true;
-      return false;
-    }
-    // Cualquier otra previa: normal
-    return state.aprobadas.has(String(code));
-  }
-
-  const canTake = (m) => (m.previas||[]).every(isPrevSatisfied);
-
-  function hasAprobada(codigo){
-    // Para mostrar estado en códigos equivalentes
-    if (codigo === "MC10") {
-      if (state.aprobadas.has("MC10")) return true;
-      if (state.cfg.calc === "114A+128A" && state.aprobadas.has("128A")) return true;
-      return false;
-    }
-    return state.aprobadas.has(codigo);
-  }
-
+  const canTake = (m) => (m.previas||[]).every(c=>state.aprobadas.has(String(c)));
   const estadoDe = (codigo)=>{
-    if(hasAprobada(codigo)) return "aprobada";
+    if(state.aprobadas.has(codigo)) return "aprobada";
     if(state.cursando.has(codigo))  return "cursando";
     const m=state.byCodigo.get(codigo);
     return canTake(m) ? "disponible" : "bloqueada";
   };
-
   const emEstado = (st)=> st==="aprobada"?"✅":st==="cursando"?"📘":st==="disponible"?"🟢":"🔒";
 
-  /** Devuelve el plan efectivo aplicando la configuración del 1º semestre.
-   *  Se usa para renderizar y para TODOS los contadores (para no duplicar créditos).
-   */
-  function getEffectivePlan() {
-    const out = [];
-    for (const m of state.data.materias) {
-      // Filtrado por configuración solo afecta 1er semestre
-      if (m.anio === 1 && m.semestre === 1) {
-        // Economía: mostrar solo la elegida si hay elección
-        if ((m.codigo === "E10" || m.codigo === "E11") && state.cfg.eco) {
-          if (m.codigo !== state.cfg.eco) continue;
-        }
-        // Cálculo
-        if (state.cfg.calc === "MC10") {
-          // ocultar 114A/128A
-          if (m.codigo === "114A" || m.codigo === "128A") continue;
-        } else if (state.cfg.calc === "114A+128A") {
-          // ocultar MC10
-          if (m.codigo === "MC10") continue;
-        }
-      }
-      out.push(m);
-    }
-    return out;
-  }
+  const friendlyPrev = (cod)=>{
+    const m = state.byCodigo.get(String(cod));
+    if(!m) return String(cod);
+    const ok = state.aprobadas.has(m.codigo);
+    return `${ok?"✅":"⏳"} ${m.nombre} (${m.codigo})`;
+  };
 
-  // ====== Render principal (Año → Semestres) ======
+  // Tooltip rico de previas
+  const showTip = (html, x, y)=>{
+    richTip.innerHTML = html;
+    richTip.style.left = Math.min(x+14, window.innerWidth - 260) + "px";
+    richTip.style.top  = (y+14) + "px";
+    richTip.hidden = false;
+  };
+  const hideTip = ()=>{richTip.hidden = true;};
+
+  // ====== Render principal ======
   function render(){
     if(!container) return;
     container.innerHTML="";
 
-    // 1) Tomamos el plan efectivo según configuración
-    const base = getEffectivePlan();
-
-    // 2) Aplicamos búsqueda/filtros y la selección de opcionales
+    // Filtros
     const q = state.filtros.q.toLowerCase().trim();
-    const filtered = base.filter(m=>{
-      // ocultar OP si no está elegida
+    const filtered = state.data.materias.filter(m=>{
       if(m.tipo==="OP" && !state.opcionalesElegidas.has(m.codigo)) return false;
 
-      // Filtros de cabecera
-      if(state.filtros.estado){
-        if(estadoDe(m.codigo)!==state.filtros.estado) return false;
+      // Filtrado por config 1º semestre:
+      if(m.anio===1 && m.semestre===1){
+        // Economía
+        if(state.cfg.eco==="E10" && m.codigo==="E11") return false;
+        if(state.cfg.eco==="E11" && m.codigo==="E10") return false;
+        // Cálculo
+        if(state.cfg.calc==="MC10" && (m.codigo==="114A" || m.codigo==="128A")) return false;
+        if(state.cfg.calc==="114A+128A" && m.codigo==="MC10") return false;
       }
+
+      if(state.filtros.estado && estadoDe(m.codigo)!==state.filtros.estado) return false;
       if(state.filtros.anio && String(m.anio)!==state.filtros.anio) return false;
       if(state.filtros.sem  && String(m.semestre)!==state.filtros.sem) return false;
       if(state.filtros.tipo && m.tipo!==state.filtros.tipo) return false;
@@ -148,31 +109,28 @@
       return true;
     });
 
-    // 3) Counters sobre el plan efectivo (SIN duplicar MC10 vs 114A/128A)
-    $("#countVisibles").textContent = filtered.length;
-    $("#countAprobadas").textContent = base.filter(x=>hasAprobada(x.codigo)).length;
-
-    const credTot = base.reduce((s,x)=>s+(+x.creditos||0),0);
-    const credOk  = base
-      .filter(x=>hasAprobada(x.codigo))
-      .reduce((s,x)=>s+(+x.creditos||0),0);
-
-    $("#countCreditos").textContent = credOk;
-
-    const pct = credTot? Math.round(credOk*100/credTot) : 0;
-    $("#progressFill").style.width = pct+"%";
-    $("#progressLabel").textContent = pct+"%";
-
-    // 4) Agrupar por año → semestres y render
-    const map = new Map(); // year -> {1:[],2:[],...}
+    // Agrupar por Año → Semestres
+    const map = new Map();
     for(const m of filtered){
-      const y = m.anio||0, s = m.semestre||0;
-      if(!map.has(y)) map.set(y, {});
-      const obj = map.get(y);
-      (obj[s] ||= []).push(m);
+      (map.get(m.anio) || map.set(m.anio,{}).get(m.anio));
+      const obj = map.get(m.anio);
+      (obj[m.semestre] ||= []).push(m);
     }
     const years = [...map.keys()].sort((a,b)=>a-b);
 
+    // Contadores y progreso (con “proxy de créditos” si eligió 114A+128A)
+    const credTot = state.data.materias.reduce((s,x)=>s+(+x.creditos||0),0);
+    const credOk  = totalCreditosOk();  // usa proxy para MC10 vs 114A/128A
+
+    $("#countVisibles").textContent = filtered.length;
+    $("#countAprobadas").textContent = state.data.materias.filter(x=>state.aprobadas.has(x.codigo)).length;
+    $("#countCreditos").textContent  = credOk;
+
+    const pct = credTot ? Math.round(credOk*100/credTot) : 0;
+    $("#progressFill").style.width = pct+"%";
+    $("#progressLabel").textContent = pct+"%";
+
+    // Pintar años y semestres
     for(const year of years){
       const yearCard = document.createElement("section");
       yearCard.className="year-card";
@@ -181,9 +139,7 @@
       const semWrap = document.createElement("div");
       semWrap.className="sem-list";
 
-      const semObj = map.get(year);
-      const sems = Object.keys(semObj).map(Number).sort((a,b)=>a-b);
-
+      const sems = Object.keys(map.get(year)).map(Number).sort((a,b)=>a-b);
       for(const s of sems){
         const semEl = document.createElement("div");
         semEl.className="sem";
@@ -191,31 +147,33 @@
         const grid = document.createElement("div");
         grid.className="m-grid";
 
-        for(const m of semObj[s].sort((a,b)=> String(a.codigo).localeCompare(String(b.codigo)))){
+        for(const m of map.get(year)[s].sort((a,b)=> String(a.codigo).localeCompare(String(b.codigo)))){
           const st = estadoDe(m.codigo);
           const el = document.createElement("div");
           el.className = `materia ${m.area||""} ${st}`;
-          el.title = `${m.nombre} (${m.codigo}) · ${m.creditos||0} créditos · ${emEstado(st)} ${st}`;
+
+          // Sin previas a la vista; tooltip al pasar
+          const prevHtml = (m.previas?.length)
+            ? `<div class="rt-title">Previas requeridas</div><ul>${m.previas.map(p=>`<li>${friendlyPrev(p)}</li>`).join("")}</ul>`
+            : `<div class="rt-title">Sin previas</div>`;
 
           el.innerHTML = `
             <div class="m-left">
               <div class="m-name">${m.nombre}</div>
-              <div class="m-meta">${m.codigo} · ${m.creditos||0} créditos ${m.previas?.length? " · Previas: "+m.previas.join(" · "):""}</div>
+              <div class="m-meta">${m.codigo} · ${m.creditos||0} créditos</div>
             </div>
             <div class="m-right">
-              <div class="badge badge--state">${emEstado(st)} ${st}</div>
-              <div class="m-tags">
-                <span class="t-pill ${m.tipo==="OB"?"tp-ob":"tp-op"}">${m.tipo}</span>
-              </div>
+              <div class="badge--state">${emEstado(st)} ${st}</div>
+              <span class="t-pill ${m.tipo==="OB"?"tp-ob":"tp-op"}">${m.tipo}</span>
             </div>
           `;
 
-          // Click = aprobar/quitar (si no está bloqueada)
+          // Aprobar / quitar
           el.addEventListener("click", ()=>{
             const curr = estadoDe(m.codigo);
             if(curr==="bloqueada"){
-              const faltan = (m.previas||[]).filter(c=>!isPrevSatisfied(c));
-              toast(`🔒 Aún bloqueada. Te falta: ${faltan.join(", ")||"previas"}`);
+              const faltan = (m.previas||[]).filter(c=>!state.aprobadas.has(c));
+              toast(`🔒 Aún bloqueada. Te falta: ${faltan.map(friendlyPrev).join(", ")||"previas"}`);
               return;
             }
             if(state.aprobadas.has(m.codigo)){
@@ -228,7 +186,7 @@
             save(); render();
           });
 
-          // Click derecho = cursando
+          // Cursando con click derecho
           el.addEventListener("contextmenu",(ev)=>{
             ev.preventDefault();
             const curr = estadoDe(m.codigo);
@@ -237,6 +195,15 @@
             else state.cursando.add(m.codigo);
             save(); render();
           });
+
+          // Tooltip previas (mouseenter/move/leave)
+          el.addEventListener("mouseenter",(e)=>{
+            showTip(prevHtml, e.clientX, e.clientY);
+          });
+          el.addEventListener("mousemove",(e)=>{
+            showTip(prevHtml, e.clientX, e.clientY);
+          });
+          el.addEventListener("mouseleave", hideTip);
 
           grid.appendChild(el);
         }
@@ -252,6 +219,17 @@
     if(years.length===0){
       container.innerHTML = `<div class="year-card"><p class="muted">No hay materias para los filtros seleccionados.</p></div>`;
     }
+  }
+
+  // === Créditos aprobados con “proxy” para Cálculo I ===
+  function totalCreditosOk(){
+    let sum = 0;
+    for(const m of state.data.materias){
+      // Caso especial: si eligió A/B, MC10 no suma; 114A y 128A valen 5 + 5
+      if(state.cfg.calc==="114A+128A" && m.codigo==="MC10") continue;
+      if(state.aprobadas.has(m.codigo)) sum += (+m.creditos||0);
+    }
+    return sum;
   }
 
   // ====== Opcionales (modal) ======
@@ -274,8 +252,8 @@
     dlg.showModal();
     $("#opCancel").onclick=()=>dlg.close();
     $("#opSave").onclick=()=>{
-      const sel = [...list.querySelectorAll("input[type=checkbox]")].filter(x=>x.checked).map(x=>x.value);
-      state.opcionalesElegidas = new Set(sel);
+      const sel=[...list.querySelectorAll('input[type="checkbox"]')].filter(x=>x.checked).map(x=>x.value);
+      state.opcionalesElegidas=new Set(sel);
       save(); dlg.close(); render();
     };
   }
@@ -283,9 +261,11 @@
   // ====== Config 1º Semestre ======
   function openConfig(){
     const dlg = $("#modalConfig");
-    // set radios
-    dlg.querySelectorAll('input[name="eco"]').forEach(r=>r.checked = (r.value===state.cfg.eco));
-    dlg.querySelectorAll('input[name="calc"]').forEach(r=>r.checked = (r.value===state.cfg.calc));
+    // set radios actuales
+    dlg.querySelectorAll('input[name="eco"]').forEach(r=>r.checked=false);
+    dlg.querySelectorAll('input[name="calc"]').forEach(r=>r.checked=false);
+    dlg.querySelector(`input[name="eco"][value="${state.cfg.eco}"]`)?.setAttribute("checked","checked");
+    dlg.querySelector(`input[name="calc"][value="${state.cfg.calc}"]`)?.setAttribute("checked","checked");
     dlg.showModal();
 
     $("#cfgCancel").onclick=()=>dlg.close();
@@ -294,17 +274,15 @@
       const calc= dlg.querySelector('input[name="calc"]:checked')?.value || "";
       state.cfg={eco,calc};
 
-      // Regla 1: Micro vs Interacciones (no ambas)
+      // Exclusiones entre E10/E11
       if(eco==="E10"){ state.aprobadas.delete("E11"); state.cursando.delete("E11"); }
       else if(eco==="E11"){ state.aprobadas.delete("E10"); state.cursando.delete("E10"); }
 
-      // Regla 2: Cálculo simple vs doble dictado
+      // Exclusiones cálculo
       if(calc==="MC10"){
-        // Si elige MC10, quitar A/B
         state.aprobadas.delete("114A"); state.aprobadas.delete("128A");
         state.cursando.delete("114A");  state.cursando.delete("128A");
       }else if(calc==="114A+128A"){
-        // si elige A/B, quitar MC10
         state.aprobadas.delete("MC10"); state.cursando.delete("MC10");
       }
 
@@ -314,18 +292,17 @@
 
   // ====== Filtros / acciones ======
   function bindUI(){
-    // selects de año dinámico
-    const years = [...new Set(state.data.materias.map(m=>m.anio))].sort((a,b)=>a-b);
-    const fAnio = $("#fAnio"); years.forEach(y=>{
-      const o=document.createElement("option");o.value=y;o.textContent=`${y}º`; fAnio.appendChild(o);
+    const years=[...new Set(state.data.materias.map(m=>m.anio))].sort((a,b)=>a-b);
+    const fAnio=$("#fAnio"); years.forEach(y=>{
+      const o=document.createElement("option"); o.value=y; o.textContent=`${y}º`; fAnio.appendChild(o);
     });
 
-    $("#q")     .addEventListener("input",(e)=>{state.filtros.q=e.target.value; render();});
+    $("#q").addEventListener("input",(e)=>{state.filtros.q=e.target.value; render();});
     $("#fEstado").addEventListener("change",(e)=>{state.filtros.estado=e.target.value; render();});
-    $("#fAnio") .addEventListener("change",(e)=>{state.filtros.anio=e.target.value; render();});
-    $("#fSem")  .addEventListener("change",(e)=>{state.filtros.sem=e.target.value; render();});
-    $("#fTipo") .addEventListener("change",(e)=>{state.filtros.tipo=e.target.value; render();});
-    $("#fArea") .addEventListener("change",(e)=>{state.filtros.area=e.target.value; render();});
+    $("#fAnio").addEventListener("change",(e)=>{state.filtros.anio=e.target.value; render();});
+    $("#fSem").addEventListener("change",(e)=>{state.filtros.sem=e.target.value; render();});
+    $("#fTipo").addEventListener("change",(e)=>{state.filtros.tipo=e.target.value; render();});
+    $("#fArea").addEventListener("change",(e)=>{state.filtros.area=e.target.value; render();});
 
     $("#btnLimpiar").onclick=()=>{
       state.filtros={q:"",estado:"",anio:"",sem:"",tipo:"",area:""};
@@ -333,16 +310,18 @@
       render();
     };
     $("#btnReset").onclick=()=>{
-      if(confirm("¿Reiniciar todo el progreso?")){ state.aprobadas.clear(); state.cursando.clear(); save(); render(); }
+      if(confirm("¿Reiniciar todo el progreso?")){
+        state.aprobadas.clear(); state.cursando.clear(); save(); render();
+      }
     };
     $("#btnOpcionales").onclick=openOpcionales;
     $("#btnConfig").onclick=openConfig;
-    $("#clearAll").onclick=()=>{ if(confirm("¿Vaciar todo?")){ localStorage.clear(); location.reload(); } };
 
     // Tema
     const root=document.documentElement, key="theme";
-    const apply=(t)=>{root.setAttribute("data-theme",t); $("#themeToggle").textContent = t==="dark"?"☀️":"🌙"; localStorage.setItem(key,t);};
-    const saved=localStorage.getItem(key); const prefersDark=window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+    const apply=(t)=>{root.setAttribute("data-theme",t); $("#themeToggle").textContent=t==="dark"?"☀️":"🌙"; localStorage.setItem(key,t);};
+    const saved=localStorage.getItem(key);
+    const prefersDark=window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     apply(saved || (prefersDark?"dark":"light"));
     $("#themeToggle").onclick=()=>{apply(root.getAttribute("data-theme")==="dark"?"light":"dark");};
   }
@@ -351,13 +330,18 @@
   async function boot(){
     load();
     try{
-      const r=await fetch(DATA_URL,{cache:"no-store"}); if(!r.ok) throw 0;
+      const r=await fetch(DATA_URL,{cache:"no-store"});
+      if(!r.ok) throw 0;
       const data=await r.json();
-      state.data=data; state.byCodigo = new Map(data.materias.map(m=>[String(m.codigo), m]));
+      state.data=data;
+      state.byCodigo = new Map(data.materias.map(m=>[String(m.codigo), m]));
       bindUI(); render();
     }catch{
       container.innerHTML = `<div class="year-card"><p>No pude cargar <code>${DATA_URL}</code>.</p></div>`;
     }
+
+    // esconder tooltip si cambiás de pestaña
+    window.addEventListener("scroll", ()=> richTip.hidden=true, {passive:true});
   }
 
   document.addEventListener("DOMContentLoaded", boot);
