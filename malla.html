@@ -3,222 +3,143 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Notegood · Malla Interactiva — Administración</title>
+  <title>Notegood · Malla Interactiva – Administración</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <!-- Topbar -->
-  <div class="topbar">
-    <div class="container topbar-inner">
-      <a href="index.html" class="brand-mini">Notegood.uy ✨</a>
-      <nav class="topbar-actions" style="display:flex;gap:10px;align-items:center">
-        <a href="index.html" class="btn-link">← Volver al landing</a>
-        <button id="themeToggle" class="theme-toggle" aria-label="Cambiar tema (claro/oscuro)">🌙</button>
-      </nav>
+  <!-- Topbar Notegood -->
+  <header class="ng-topbar">
+    <div class="ng-container ng-topbar__inner">
+      <a href="index.html" class="ng-btn ng-btn--ghost">← Volver</a>
+      <div class="ng-topbar__brand">Notegood.uy ✨</div>
+      <div class="ng-topbar__actions">
+        <button id="clearAll" class="ng-btn ng-btn--ghost">🗑 Borrar</button>
+        <button id="themeToggle" class="ng-btn ng-btn--ghost" aria-label="Cambiar tema">🌙</button>
+      </div>
     </div>
-  </div>
 
-  <!-- Header centrado + progreso -->
-  <header class="container section malla-hero">
-    <div class="malla-hero-inner">
-      <h1>📌 Malla Interactiva — Administración</h1>
-      <p class="muted">Clic: <b>aprobada</b> · Clic derecho: <b>cursando</b>. Tu progreso se guarda en este dispositivo.</p>
-
-      <!-- Leyenda -->
-      <div class="legend">
-        <span class="legend-item"><span class="legend-dot">✅</span> Aprobada</span>
-        <span class="legend-item"><span class="legend-dot">📚</span> Cursando</span>
-        <span class="legend-item"><span class="legend-dot">🔓</span> Disponible</span>
-        <span class="legend-item"><span class="legend-dot">🔒</span> Bloqueada</span>
-        <span class="legend-item"><span class="chip">OB</span> Obligatoria</span>
-        <span class="legend-item"><span class="chip alt">OP</span> Opcional</span>
+    <div class="ng-container ng-topbar__stats">
+      <div class="ng-legend">
+        <span class="legend-item"><span class="dot ok"></span>✅ Aprobada</span>
+        <span class="legend-item"><span class="dot in"></span>📘 Cursando</span>
+        <span class="legend-item"><span class="dot av"></span>🟢 Disponible</span>
+        <span class="legend-item"><span class="dot bl"></span>🔒 Bloqueada</span>
+        <span class="legend-item"><span class="tag tag--ob">OB</span> Obligatoria</span>
+        <span class="legend-item"><span class="tag tag--op">OP</span> Opcional</span>
       </div>
 
-      <!-- KPIs -->
-      <div class="cards-row stat-row">
-        <div class="stat-pill">Aprobadas <strong id="countAprobadas">0</strong></div>
-        <div class="stat-pill">Totales visibles <strong id="countTotales">0</strong></div>
-        <div class="stat-pill">Créditos aprobados <strong id="countCreditos">0</strong></div>
+      <div class="ng-counters">
+        <div class="counter"><strong id="countAprobadas">0</strong> aprobadas</div>
+        <div class="counter"><strong id="countVisibles">0</strong> totales visibles</div>
+        <div class="counter"><strong id="countCreditos">0</strong> créditos aprobados</div>
       </div>
 
-      <!-- Progreso -->
-      <div class="progress-wrap">
-        <div class="progress-head">
-          <span class="muted">Progreso (sobre obligatorias + opcionales elegidas)</span>
-          <strong id="progressLabel">0%</strong>
+      <div class="ng-progress">
+        <div class="ng-progress__bar">
+          <div class="ng-progress__fill" id="progressFill" style="width:0%"></div>
         </div>
-        <div class="bar"><span id="bar" style="width:0%"></span></div>
+        <span class="ng-progress__label" id="progressLabel">0%</span>
       </div>
     </div>
   </header>
 
-  <!-- Filtros / acciones -->
-  <section class="container section">
-    <div class="toolbar">
-      <div class="control">
-        <label for="filterText">Buscar</label>
-        <input id="filterText" type="text" placeholder="Código o nombre…"/>
-      </div>
-      <div class="control">
-        <label for="filterEstado">Estado</label>
-        <select id="filterEstado">
-          <option value="">Todos</option>
-          <option value="aprobada">Aprobada ✅</option>
-          <option value="cursando">Cursando 📚</option>
-          <option value="disponible">Disponible 🔓</option>
-          <option value="bloqueada">Bloqueada 🔒</option>
-        </select>
-      </div>
-      <div class="control">
-        <label for="filterYear">Año</label>
-        <select id="filterYear">
-          <option value="">Todos</option>
-          <option value="1">1º</option><option value="2">2º</option>
-          <option value="3">3º</option><option value="4">4º</option>
-        </select>
-      </div>
-      <div class="control">
-        <label for="filterSem">Semestre</label>
-        <select id="filterSem">
-          <option value="">Todos</option>
-          <option value="1">1º</option><option value="2">2º</option>
-          <option value="3">3º</option><option value="4">4º</option>
-          <option value="5">5º</option><option value="6">6º</option>
-          <option value="7">7º</option><option value="8">8º</option>
-        </select>
-      </div>
-      <div class="control">
-        <label for="filterTipo">Tipo</label>
-        <select id="filterTipo">
-          <option value="">Todas</option>
-          <option value="OB">Obligatoria</option>
-          <option value="OP">Opcional</option>
-        </select>
-      </div>
-      <div class="control">
-        <label for="filterArea">Área</label>
-        <select id="filterArea">
-          <option value="">Todas</option>
-          <option value="A">A — Admin.</option>
-          <option value="C">C — Contab.</option>
-          <option value="MC">MC — Métodos</option>
-          <option value="E">E — Economía</option>
-          <option value="I">I — Integradoras</option>
-          <option value="S">S — Sociales</option>
-          <option value="J">J — Jurídica</option>
-        </select>
-      </div>
+  <!-- Barra de acciones -->
+  <section class="ng-actions ng-container">
+    <div class="ng-actions__left">
+      <input id="q" class="ng-input" placeholder="Buscar por código o nombre…"/>
+      <select id="fEstado" class="ng-select">
+        <option value="">Estado: Todos</option>
+        <option value="aprobada">Aprobada</option>
+        <option value="cursando">Cursando</option>
+        <option value="disponible">Disponible</option>
+        <option value="bloqueada">Bloqueada</option>
+      </select>
+      <select id="fAnio" class="ng-select">
+        <option value="">Año: Todos</option>
+      </select>
+      <select id="fSem" class="ng-select">
+        <option value="">Semestre: Todos</option>
+        <option value="1">1º</option>
+        <option value="2">2º</option>
+        <option value="3">3º</option>
+        <option value="4">4º</option>
+        <option value="5">5º</option>
+        <option value="6">6º</option>
+        <option value="7">7º</option>
+        <option value="8">8º</option>
+      </select>
+      <select id="fTipo" class="ng-select">
+        <option value="">Tipo: Todos</option>
+        <option value="OB">Obligatoria</option>
+        <option value="OP">Opcional</option>
+      </select>
+      <select id="fArea" class="ng-select">
+        <option value="">Área: Todas</option>
+        <option value="A">Administración</option>
+        <option value="C">Contabilidad</option>
+        <option value="MC">Métodos Cuant.</option>
+        <option value="E">Economía</option>
+        <option value="I">Integradoras</option>
+        <option value="S">Sociales</option>
+        <option value="J">Jurídica</option>
+      </select>
+    </div>
 
-      <div class="control control-actions">
-        <button id="btnConfig" class="btn">⚙️ Configurar 1º semestre</button>
-        <button id="btnOpcionales" class="btn">➕ Agregar opcionales</button>
-        <button id="btnClearFilters" class="btn ghost">Limpiar filtros</button>
-        <button id="btnReset" class="btn danger">Reiniciar progreso</button>
-      </div>
+    <div class="ng-actions__right">
+      <button id="btnConfig" class="ng-btn ng-btn--soft">⚙️ Configurar 1º semestre</button>
+      <button id="btnOpcionales" class="ng-btn ng-btn--soft">➕ Agregar opcionales</button>
+      <button id="btnLimpiar" class="ng-btn ng-btn--soft">🧽 Limpiar filtros</button>
+      <button id="btnReset" class="ng-btn ng-btn--danger">⟳ Reiniciar progreso</button>
     </div>
   </section>
 
-  <!-- Contenedor de la grilla -->
-  <main class="container section">
-    <div id="malla-container"></div>
-  </main>
+  <!-- Contenedor Malla -->
+  <main class="ng-container" id="malla-container" aria-live="polite"></main>
 
-  <!-- Modal de opcionales -->
-  <div id="opModal" class="op-modal" hidden>
-    <div class="op-dialog card">
-      <div class="op-head">
-        <h3>Agregar materias opcionales</h3>
-        <button id="opClose" class="btn ghost small">✖</button>
-      </div>
-      <div class="op-body">
-        <div class="control" style="margin-bottom:8px">
-          <input id="opSearch" type="text" placeholder="Buscar opcionales por código o nombre…" />
-        </div>
-        <div id="opList" class="op-list"></div>
-      </div>
-      <div class="op-foot">
-        <button id="opClear" class="btn ghost">Quitar todas</button>
-        <button id="opSave" class="btn">Guardar selección</button>
+  <!-- Modal Opcionales -->
+  <dialog id="modalOpcionales" class="ng-modal">
+    <div class="ng-modal__card">
+      <h3>Agregar opcionales</h3>
+      <p class="muted">Marca las opcionales que quieras ver en tu grilla.</p>
+      <div id="opList" class="op-list"></div>
+      <div class="ng-modal__actions">
+        <button id="opCancel" class="ng-btn ng-btn--ghost">Cerrar</button>
+        <button id="opSave" class="ng-btn ng-btn--primary">Guardar</button>
       </div>
     </div>
-    <div class="op-backdrop"></div>
-  </div>
+  </dialog>
 
-  <!-- Modal de configuración 1º semestre -->
-  <div id="cfgModal" class="op-modal" hidden>
-    <div class="op-dialog card">
-      <div class="op-head">
-        <h3>Configurar 1º semestre</h3>
-        <button id="cfgClose" class="btn ghost small">✖</button>
+  <!-- Modal Config 1er Semestre -->
+  <dialog id="modalConfig" class="ng-modal">
+    <div class="ng-modal__card">
+      <h3>Configurar 1º semestre</h3>
+      <div class="cfg-block">
+        <p class="cfg-title">Microeconomía / Interacciones (elige una)</p>
+        <label class="cfg-item">
+          <input type="radio" name="eco" value="E10"> Introducción a la Microeconomía
+        </label>
+        <label class="cfg-item">
+          <input type="radio" name="eco" value="E11"> Análisis de las Interacciones Económicas
+        </label>
       </div>
-      <div class="op-body">
 
-        <!-- Regla 1: Micro vs Interacciones -->
-        <div class="card" style="padding:12px">
-          <h4 style="margin-bottom:6px">Intro Micro vs Interacciones</h4>
-          <p class="muted" style="margin-bottom:8px">Puedes cursar <b>E10</b> o <b>E11</b>, pero no ambas.</p>
-          <label class="op-row">
-            <input type="radio" name="microChoice" value="auto" checked />
-            <span class="op-name">Dejar ambas visibles (se bloquearán entre sí al aprobar una)</span>
-          </label>
-          <label class="op-row">
-            <input type="radio" name="microChoice" value="E10" />
-            <span class="op-name">Solo E10 — Introducción a la Microeconomía</span>
-          </label>
-          <label class="op-row">
-            <input type="radio" name="microChoice" value="E11" />
-            <span class="op-name">Solo E11 — Análisis de Interacciones Económicas</span>
-          </label>
-        </div>
-
-        <!-- Regla 2: Cálculo I -->
-        <div class="card" style="padding:12px;margin-top:10px">
-          <h4 style="margin-bottom:6px">Cálculo I</h4>
-          <p class="muted" style="margin-bottom:8px">Puedes cursar <b>MC10</b> o dividirlo en <b>114A</b> + <b>128A</b>. Si apruebas 114A y 128A, se considera cumplida la previa de MC10.</p>
-          <label class="op-row">
-            <input type="radio" name="calculoMode" value="auto" checked />
-            <span class="op-name">Mostrar ambas opciones (se bloquearán entre sí según lo que elijas)</span>
-          </label>
-          <label class="op-row">
-            <input type="radio" name="calculoMode" value="MC10" />
-            <span class="op-name">Solo MC10 — Cálculo I</span>
-          </label>
-          <label class="op-row">
-            <input type="radio" name="calculoMode" value="PARTES" />
-            <span class="op-name">Solo por partes — 114A (I/A) + 128A (I/B)</span>
-          </label>
-        </div>
-
+      <div class="cfg-block">
+        <p class="cfg-title">Cálculo (elige una modalidad)</p>
+        <label class="cfg-item">
+          <input type="radio" name="calc" value="MC10"> Cálculo I (completa)
+        </label>
+        <label class="cfg-item">
+          <input type="radio" name="calc" value="114A+128A"> Cálculo I/A + Cálculo I/B (doble dictado)
+        </label>
       </div>
-      <div class="op-foot">
-        <button id="cfgResetChoice" class="btn ghost">Restablecer</button>
-        <button id="cfgSave" class="btn">Guardar configuración</button>
+
+      <div class="ng-modal__actions">
+        <button id="cfgCancel" class="ng-btn ng-btn--ghost">Cancelar</button>
+        <button id="cfgSave" class="ng-btn ng-btn--primary">Guardar</button>
       </div>
     </div>
-    <div class="op-backdrop"></div>
-  </div>
-
-  <!-- Footer mini -->
-  <footer class="ng-footer">
-    <div class="container footer-inner">
-      <p class="muted">Tip: configura tu 1º semestre y selecciona opcionales antes de planificar.</p>
-    </div>
-  </footer>
-
-  <!-- Toggle claro/oscuro -->
-  <script>
-    (function(){
-      const root = document.documentElement;
-      const key = "theme";
-      const btn = document.getElementById("themeToggle");
-      const apply = (t) => { root.setAttribute("data-theme", t); if (btn) btn.textContent = t === "dark" ? "☀️" : "🌙"; localStorage.setItem(key, t); };
-      const saved = localStorage.getItem(key);
-      const prefersDark = matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
-      apply(saved || (prefersDark ? "dark" : "light"));
-      btn && btn.addEventListener("click", () => apply(root.getAttribute("data-theme")==="dark"?"light":"dark"));
-    })();
-  </script>
+  </dialog>
 
   <script src="app.js"></script>
 </body>
