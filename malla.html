@@ -3,143 +3,133 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Notegood · Malla Interactiva – Administración</title>
+  <title>Malla Interactiva — Administración · Notegood</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <!-- Topbar Notegood -->
+  <!-- HEADER / TOP-BAR estilo Notegood -->
   <header class="ng-topbar">
-    <div class="ng-container ng-topbar__inner">
-      <a href="index.html" class="ng-btn ng-btn--ghost">← Volver</a>
-      <div class="ng-topbar__brand">Notegood.uy ✨</div>
-      <div class="ng-topbar__actions">
-        <button id="clearAll" class="ng-btn ng-btn--ghost">🗑 Borrar</button>
-        <button id="themeToggle" class="ng-btn ng-btn--ghost" aria-label="Cambiar tema">🌙</button>
+    <div class="ng-topbar__inner container">
+      <a class="brand-link" href="index.html" aria-label="Ir al landing">Notegood.uy ✨</a>
+
+      <div class="top-actions">
+        <button id="themeToggle" class="btn-ghost" aria-label="Cambiar tema">🌙</button>
+        <a class="btn-ghost exit" href="index.html" aria-label="Volver al landing">🚪</a>
       </div>
     </div>
 
-    <div class="ng-container ng-topbar__stats">
-      <div class="ng-legend">
-        <span class="legend-item"><span class="dot ok"></span>✅ Aprobada</span>
-        <span class="legend-item"><span class="dot in"></span>📘 Cursando</span>
-        <span class="legend-item"><span class="dot av"></span>🟢 Disponible</span>
-        <span class="legend-item"><span class="dot bl"></span>🔒 Bloqueada</span>
-        <span class="legend-item"><span class="tag tag--ob">OB</span> Obligatoria</span>
-        <span class="legend-item"><span class="tag tag--op">OP</span> Opcional</span>
+    <div class="ng-metrics container">
+      <div class="legend">
+        <span class="dot ok"></span> Aprobada
+        <span class="dot cur"></span> Cursando
+        <span class="dot free"></span> Disponible
+        <span class="dot lock"></span> Bloqueada
+        <span class="pill pill--ob">OB</span> Obligatoria
+        <span class="pill pill--op">OP</span> Opcional
       </div>
 
-      <div class="ng-counters">
-        <div class="counter"><strong id="countAprobadas">0</strong> aprobadas</div>
-        <div class="counter"><strong id="countVisibles">0</strong> totales visibles</div>
-        <div class="counter"><strong id="countCreditos">0</strong> créditos aprobados</div>
+      <div class="counters">
+        <strong id="countAprobadas">0</strong> aprobadas
+        <span class="sep"></span>
+        <strong id="countVisibles">0</strong> totales visibles
+        <span class="sep"></span>
+        <strong id="countCreditos">0</strong> créditos aprobados
       </div>
 
-      <div class="ng-progress">
-        <div class="ng-progress__bar">
-          <div class="ng-progress__fill" id="progressFill" style="width:0%"></div>
-        </div>
-        <span class="ng-progress__label" id="progressLabel">0%</span>
+      <div class="progress">
+        <div id="progressFill" class="progress__fill"></div>
       </div>
+      <div id="progressLabel" class="progress__label">0%</div>
     </div>
   </header>
 
-  <!-- Barra de acciones -->
-  <section class="ng-actions ng-container">
-    <div class="ng-actions__left">
-      <input id="q" class="ng-input" placeholder="Buscar por código o nombre…"/>
-      <select id="fEstado" class="ng-select">
+  <!-- CONTROLES / FILTROS -->
+  <section class="toolbar container">
+    <div class="toolbar__left">
+      <input id="q" class="field" type="search" placeholder="Buscar por código o nombre…">
+
+      <select id="fEstado" class="field">
         <option value="">Estado: Todos</option>
         <option value="aprobada">Aprobada</option>
         <option value="cursando">Cursando</option>
         <option value="disponible">Disponible</option>
         <option value="bloqueada">Bloqueada</option>
       </select>
-      <select id="fAnio" class="ng-select">
+
+      <select id="fAnio" class="field">
         <option value="">Año: Todos</option>
       </select>
-      <select id="fSem" class="ng-select">
+
+      <select id="fSem" class="field">
         <option value="">Semestre: Todos</option>
         <option value="1">1º</option>
         <option value="2">2º</option>
-        <option value="3">3º</option>
-        <option value="4">4º</option>
-        <option value="5">5º</option>
-        <option value="6">6º</option>
-        <option value="7">7º</option>
-        <option value="8">8º</option>
       </select>
-      <select id="fTipo" class="ng-select">
+
+      <select id="fTipo" class="field">
         <option value="">Tipo: Todos</option>
         <option value="OB">Obligatoria</option>
         <option value="OP">Opcional</option>
       </select>
-      <select id="fArea" class="ng-select">
+
+      <select id="fArea" class="field">
         <option value="">Área: Todas</option>
-        <option value="A">Administración</option>
-        <option value="C">Contabilidad</option>
-        <option value="MC">Métodos Cuant.</option>
-        <option value="E">Economía</option>
-        <option value="I">Integradoras</option>
-        <option value="S">Sociales</option>
-        <option value="J">Jurídica</option>
+        <option value="A">A</option>
+        <option value="C">C</option>
+        <option value="MC">MC</option>
+        <option value="E">E</option>
+        <option value="I">I</option>
+        <option value="S">S</option>
+        <option value="J">J</option>
       </select>
     </div>
 
-    <div class="ng-actions__right">
-      <button id="btnConfig" class="ng-btn ng-btn--soft">⚙️ Configurar 1º semestre</button>
-      <button id="btnOpcionales" class="ng-btn ng-btn--soft">➕ Agregar opcionales</button>
-      <button id="btnLimpiar" class="ng-btn ng-btn--soft">🧽 Limpiar filtros</button>
-      <button id="btnReset" class="ng-btn ng-btn--danger">⟳ Reiniciar progreso</button>
+    <div class="toolbar__right">
+      <button id="btnConfig" class="btn soft">⚙️ Configurar 1º semestre</button>
+      <button id="btnOpcionales" class="btn soft">➕ Agregar opcionales</button>
+      <button id="btnLimpiar" class="btn ghost">🧽 Limpiar filtros</button>
+      <button id="btnReset" class="btn danger">↻ Reiniciar progreso</button>
     </div>
   </section>
 
-  <!-- Contenedor Malla -->
-  <main class="ng-container" id="malla-container" aria-live="polite"></main>
+  <!-- CONTENIDO: AÑO → SEMESTRES → MATERIAS -->
+  <main id="malla-container" class="container"></main>
 
-  <!-- Modal Opcionales -->
+  <!-- MODAL: Opcionales -->
   <dialog id="modalOpcionales" class="ng-modal">
-    <div class="ng-modal__card">
-      <h3>Agregar opcionales</h3>
-      <p class="muted">Marca las opcionales que quieras ver en tu grilla.</p>
-      <div id="opList" class="op-list"></div>
-      <div class="ng-modal__actions">
-        <button id="opCancel" class="ng-btn ng-btn--ghost">Cerrar</button>
-        <button id="opSave" class="ng-btn ng-btn--primary">Guardar</button>
-      </div>
+    <h3>Elegí las opcionales que querés ver</h3>
+    <div id="opList" class="cfg-list"></div>
+    <div class="modal-actions">
+      <button id="opCancel" class="btn ghost">Cancelar</button>
+      <button id="opSave" class="btn">Guardar</button>
     </div>
   </dialog>
 
-  <!-- Modal Config 1er Semestre -->
+  <!-- MODAL: Configuración 1º semestre -->
   <dialog id="modalConfig" class="ng-modal">
-    <div class="ng-modal__card">
-      <h3>Configurar 1º semestre</h3>
-      <div class="cfg-block">
-        <p class="cfg-title">Microeconomía / Interacciones (elige una)</p>
-        <label class="cfg-item">
-          <input type="radio" name="eco" value="E10"> Introducción a la Microeconomía
-        </label>
-        <label class="cfg-item">
-          <input type="radio" name="eco" value="E11"> Análisis de las Interacciones Económicas
-        </label>
-      </div>
+    <h3>Configurar 1º semestre</h3>
 
-      <div class="cfg-block">
-        <p class="cfg-title">Cálculo (elige una modalidad)</p>
-        <label class="cfg-item">
-          <input type="radio" name="calc" value="MC10"> Cálculo I (completa)
-        </label>
-        <label class="cfg-item">
-          <input type="radio" name="calc" value="114A+128A"> Cálculo I/A + Cálculo I/B (doble dictado)
-        </label>
-      </div>
+    <div class="cfg-block">
+      <div class="cfg-title">Economía (elegí una)</div>
+      <label class="cfg-item"><input type="radio" name="eco" value="E10"> Introducción a la Microeconomía (E10)</label>
+      <label class="cfg-item"><input type="radio" name="eco" value="E11"> Análisis de las Interacciones Económicas (E11)</label>
+    </div>
 
-      <div class="ng-modal__actions">
-        <button id="cfgCancel" class="ng-btn ng-btn--ghost">Cancelar</button>
-        <button id="cfgSave" class="ng-btn ng-btn--primary">Guardar</button>
-      </div>
+    <div class="cfg-block">
+      <div class="cfg-title">Cálculo (elegí un formato)</div>
+      <label class="cfg-item"><input type="radio" name="calc" value="MC10"> Cálculo I (MC10)</label>
+      <label class="cfg-item"><input type="radio" name="calc" value="114A+128A"> Cálculo I en dos partes: I/A (114A) + I/B (128A)</label>
+    </div>
+
+    <div class="modal-actions">
+      <button id="cfgCancel" class="btn ghost">Cancelar</button>
+      <button id="cfgSave" class="btn">Guardar</button>
     </div>
   </dialog>
+
+  <!-- Tooltip rico para previas -->
+  <div id="richTooltip" class="rich-tip" hidden></div>
 
   <script src="app.js"></script>
 </body>
