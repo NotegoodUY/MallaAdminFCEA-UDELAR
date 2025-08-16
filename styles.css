@@ -178,3 +178,80 @@ a{color:inherit;text-decoration:none}
 
 /* ===== Util ===== */
 .muted{color:var(--muted)}
+
+/* ---------- HEADER NG centrado ---------- */
+.ng-header{
+  background: linear-gradient(90deg,#5b5bd6 0%, #0077ff 100%);
+  color:#fff;
+  padding: 14px 0 20px;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.08);
+}
+.ng-header__top{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px; max-width:1100px; margin:0 auto 10px; padding:0 16px;
+}
+.ng-header .brand-mini{color:#fff;font-weight:800;border:1px solid rgba(255,255,255,.25);padding:.35rem .6rem;border-radius:14px;background:rgba(0,0,0,.15);backdrop-filter:blur(6px)}
+.ng-header__actions{display:flex;gap:10px}
+.icon-btn{border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.15);color:#fff;border-radius:12px;padding:.45rem .6rem}
+.icon-btn:hover{background:rgba(255,255,255,.08)}
+
+.ng-header__progress{max-width:760px;margin:8px auto 6px;padding:0 16px}
+.progress{height:10px;border-radius:999px;background:rgba(255,255,255,.25);overflow:hidden}
+.progress__fill{height:100%;width:0;background:#c4b5fd}
+.progress__percent{margin-top:6px;text-align:center;font-weight:800}
+
+.ng-header__stats{display:flex;gap:10px;align-items:center;justify-content:center;margin:6px 0 8px}
+.ng-header__stats .dot{opacity:.7}
+.ng-header__legend{display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;font-weight:700}
+.ng-header .pill{padding:.12rem .35rem;border-radius:6px;background:#111827;color:#fff;font-size:.75rem}
+.ng-header .pill--op{background:#00b5ff}
+
+/* ---------- Filtros/acciones en dos filas justificadas ---------- */
+.filters-wrap{max-width:1100px;margin:16px auto 6px;padding:0 16px}
+.filters-grid{
+  display:grid;grid-template-columns:repeat(12,1fr);gap:12px;
+}
+.filters-grid .block-left{grid-column:1/10;display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.filters-grid .block-right{grid-column:10/13;display:grid;grid-template-columns:1fr;gap:12px}
+@media (max-width:960px){
+  .filters-grid{grid-template-columns:1fr}
+  .filters-grid .block-left{grid-column:1/-1;grid-template-columns:1fr 1fr}
+  .filters-grid .block-right{grid-column:1/-1;grid-template-columns:1fr 1fr}
+}
+
+/* ---------- Tooltips de previas (ya calculados por JS en title) ---------- */
+/* (no requiere estilos extra; el navegador nativo muestra el tooltip) */
+
+/* ---------- Tarjetas materias: colores pastel por área ---------- */
+.materia.A{ --bg:#eef2ff; --br:#c7d2fe;}
+.materia.C{ --bg:#ecfeff; --br:#a5f3fc;}
+.materia.MC{--bg:#f0f9ff; --br:#bae6fd;}
+.materia.E{ --bg:#f0fdf4; --br:#bbf7d0;}
+.materia.I{ --bg:#fdf4ff; --br:#e9d5ff;}
+.materia.S{ --bg:#fff7ed; --br:#fed7aa;}
+.materia.J{ --bg:#fff1f2; --br:#fecdd3;}
+
+.materia{
+  background:var(--bg,#f8fafc);
+  border:2px solid var(--br,#e5e7eb);
+  border-radius:14px; padding:12px 14px;
+}
+.materia.aprobada{box-shadow:0 0 0 2px #22c55e inset}
+.materia.cursando{box-shadow:0 0 0 2px #60a5fa inset}
+.materia.bloqueada{opacity:.7}
+
+/* “badges” estado/tipo */
+.badge--state{font-weight:800;background:#0f172a;color:#fff;border-radius:10px;padding:.2rem .45rem}
+.t-pill.tp-ob{background:#0f172a;color:#fff}
+.t-pill.tp-op{background:#06b6d4;color:#032a35}
+
+/* Inputs / selects coherentes */
+select, input[type="text"]{
+  width:100%;border-radius:12px;border:1px solid rgba(17,24,39,.12);
+  padding:.6rem .7rem;background:#fff
+}
+.btn, .btn-ghost, .btn-danger{
+  border-radius:12px;padding:.65rem .9rem;font-weight:800
+}
+.btn-ghost{background:#fff;border:1px solid rgba(17,24,39,.12)}
+.btn-danger{background:#e11d48;color:#fff}
